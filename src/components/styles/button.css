@@ -1,0 +1,104 @@
+/************
+button.css 
+***********/
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+}
+
+/* Default button */
+.button.default {
+  background-color: #010816; /* Tailwind's blue-600 */
+  color: white;
+}
+.button.default:hover {
+  background-color: #2b2b2b;
+}
+
+/* Destructive */
+.button.destructive {
+  background-color: #dc2626; /* red-600 */
+  color: white;
+}
+.button.destructive:hover {
+  background-color: #b91c1c;
+}
+
+/* Outline */
+.button.outline {
+  border: 1px solid #d1d5db; /* gray-300 */
+  background-color: white;
+  color: #111827;
+}
+.button.outline:hover {
+  background-color: #f3f4f6;
+}
+
+/* Secondary */
+.button.secondary {
+  background-color: #e5e7eb; /* gray-200 */
+  color: #111827;
+}
+.button.secondary:hover {
+  background-color: #d1d5db;
+}
+
+/* Ghost */
+.button.ghost {
+  background: none;
+  color: #111827;
+}
+.button.ghost:hover {
+  background-color: #f9fafb;
+}
+
+/* Link */
+.button.link {
+  background: none;
+  color: #010713;
+  text-decoration: underline;
+}
+.button.link:hover {
+  color: #5c5c5d;
+}
+
+/* Sizes */
+.button.default,
+.button.lg {
+  height: 40px;
+}
+
+.button.sm {
+  height: 32px;
+  font-size: 0.8rem;
+  padding: 4px 12px;
+}
+
+.button.lg {
+  height: 48px;
+  font-size: 1rem;
+  padding: 10px 20px;
+}
+
+.button.icon {
+  height: 40px;
+  width: 40px;
+  padding: 0;
+  border-radius: 6px;
+}
+
+/* Disabled */
+.button:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}

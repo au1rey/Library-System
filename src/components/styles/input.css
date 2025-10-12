@@ -1,0 +1,47 @@
+/***********************
+ * Plain CSS Styles for Input
+ ***********************/
+
+.input {
+  width: 100%;
+  height: 36px;
+  padding: 6px 12px;
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background-color: white;
+  color: #111827;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+/* Placeholder color */
+.input::placeholder {
+  color: #9ca3af; /* gray-400 */
+}
+
+/* Focus effect */
+.input:focus {
+  border-color: #2563eb; /* blue-600 */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+/* Disabled */
+.input:disabled {
+  opacity: 0.5;
+  background-color: #f9fafb;
+  cursor: not-allowed;
+}
+
+/* Invalid (for aria-invalid=true) */
+.input[aria-invalid="true"] {
+  border-color: #dc2626; /* red-600 */
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+/* File input styles */
+.input[type="file"] {
+  padding: 4px;
+  border: none;
+  background-color: transparent;
+}
