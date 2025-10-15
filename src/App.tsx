@@ -1,8 +1,9 @@
 import { useState } from "react";
-//import { NavBar } from "./components/NavBar.tsx";
+import { Navbar } from "./components/NavBar.tsx";
 import { SignIn } from "./components/auth/SignIn.tsx";
 import { SignUp } from "./components/auth/SignUp.tsx";
-/*import { AdminWelcome } from "./components/admins/AdminWelcome.tsx";
+import { AdminWelcome } from "./components/admins/AdminWelcome.tsx";
+/*
 import { AddBook } from "./components/admins/AdminAddBook.tsx";
 import { AdminSearch } from "./components/admins/AdminSearch.tsx";
 import { UserWelcome } from "./components/users/UserWelcome.tsx";
@@ -72,9 +73,9 @@ export default function App() {
         return <SignIn onSignIn={handleSignIn} onNavigate={handleNavigate} />;
       case 'sign-up':
         return <SignUp onSignUp={handleSignUp} onNavigate={handleNavigate} />;
-      /*case 'admin-welcome': TO::DO Uncomment when components are ready
+      case 'admin-welcome': 
         return <AdminWelcome onNavigate={handleNavigate} />;
-      case 'admin-add-book':
+     /* case 'admin-add-book':  TO::DO Uncomment when components are ready
         return <AddBook />;
       case 'admin-search':
         return <AdminSearch />;
@@ -89,11 +90,18 @@ export default function App() {
     }
   };
 
-  // Don't show navbar on auth screens TO:DO Uncomment when NavBar is ready
- // const showNavBar = currentScreen !== 'sign-in' && currentScreen !== 'sign-up';
+  // Conditionally render Navbar on everything but auth screens
+ const showNavBar = currentScreen !== 'sign-in' && currentScreen !== 'sign-up';
 
-  return (
-    <div className="min-h-screen bg-background">
+   return (
+    <div className="app-container">
+      {showNavBar && (
+        <Navbar
+          userType={userType}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+        />
+      )}
       {renderContent()}
     </div>
   );

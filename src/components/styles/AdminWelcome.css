@@ -1,0 +1,89 @@
+/* AdminWelcome.css */
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.admin-header {
+  margin-bottom: 2rem;
+}
+
+.admin-header h1 {
+  margin-bottom: 0.5rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat-title {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.stat-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.stat-icon.blue { color: #2563eb; }
+.stat-icon.green { color: #16a34a; }
+.stat-icon.orange { color: #f97316; }
+.stat-icon.red { color: #dc2626; }
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.action-card {
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+
+.action-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.recent-activity {
+  margin-top: 2rem;
+}
+
+.activity-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
+  padding: 0.75rem 0;
+}
+
+.activity-row:last-child {
+  border-bottom: none;
+}
+
+.activity-action {
+  font-weight: 500;
+}
+
+.activity-detail,
+.activity-time {
+  color: #666;
+  font-size: 0.9rem;
+}
