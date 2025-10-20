@@ -4,6 +4,7 @@ import { SignIn } from "./components/auth/SignIn.tsx";
 import { SignUp } from "./components/auth/SignUp.tsx";
 import { AdminWelcome } from "./components/admins/AdminWelcome.tsx";
 import { UserWelcome } from "./components/users/UserWelcome.tsx";
+import { UserSearch } from "./components/users/UserSearch.tsx";
 /*
 import { AddBook } from "./components/admins/AdminAddBook.tsx";
 import { AdminSearch } from "./components/admins/AdminSearch.tsx";
