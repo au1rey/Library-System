@@ -1,0 +1,44 @@
+/***********************
+ * Text Area Component Styles
+ ***********************/
+
+.ui-textarea {
+  width: 100%;
+  min-height: 4rem;
+  padding: 0.5rem 0.75rem; 
+  border: 1px solid var(--input-border, #ccc);
+  border-radius: 6px;
+  background-color: var(--input-bg, #fff);
+  color: var(--text-color, #222);
+  font-size: 1rem;
+  line-height: 1.5;
+  resize: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* Placeholder style */
+.ui-textarea::placeholder {
+  color: var(--placeholder-color, #888);
+}
+
+/* Focus state */
+.ui-textarea:focus {
+  border-color: var(--focus-border, #5b8def);
+  box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.3);
+}
+
+/* Disabled state */
+.ui-textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--disabled-bg, #f7f7f7);
+}
+
+/* Invalid state (e.g., aria-invalid="true") */
+.ui-textarea[aria-invalid="true"] {
+  border-color: var(--error-color, #e63946);
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+  background-color: var(--error-bg, #fff5f5);
+}

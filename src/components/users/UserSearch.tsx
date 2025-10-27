@@ -1,32 +1,20 @@
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Badge } from "../ui/badge";
-import { Select, SelectItem } from "../ui/select";
+import React, { useState } from "react";
+import * as Select from "@radix-ui/react-select";
 import { Search, Heart, BookOpen, Calendar, MapPin } from "lucide-react";
-import "../styles/usersearch.css";
+import "../styles/usersearch.css"; 
 
 export function UserSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [availabilityFilter, setAvailabilityFilter] = useState("all");
 
-  // Mock book data
   const mockBooks = [
     {
       id: 1,
       title: "The Great Gatsby",
       author: "F. Scott Fitzgerald",
       category: "Literature",
-      description:
-        "A classic American novel set in the Jazz Age, exploring themes of wealth, love, and the American Dream.",
+      description: "A classic American novel set in the Jazz Age, exploring themes of wealth, love, and the American Dream.",
       available: true,
       totalCopies: 3,
       availableCopies: 2,
@@ -40,8 +28,7 @@ export function UserSearch() {
       title: "To Kill a Mockingbird",
       author: "Harper Lee",
       category: "Literature",
-      description:
-        "A gripping tale of racial injustice and childhood innocence in the American South.",
+      description: "A gripping tale of racial injustice and childhood innocence in the American South.",
       available: true,
       totalCopies: 2,
       availableCopies: 2,
@@ -55,8 +42,7 @@ export function UserSearch() {
       title: "1984",
       author: "George Orwell",
       category: "Fiction",
-      description:
-        "A dystopian novel about totalitarianism and surveillance in a future society.",
+      description: "A dystopian novel about totalitarianism and surveillance in a future society.",
       available: false,
       totalCopies: 4,
       availableCopies: 0,
@@ -65,61 +51,9 @@ export function UserSearch() {
       publishYear: 1949,
       pages: 328,
     },
-    {
-      id: 4,
-      title: "A Brief History of Time",
-      author: "Stephen Hawking",
-      category: "Science",
-      description:
-        "An accessible explanation of cosmology, black holes, and the nature of time.",
-      available: true,
-      totalCopies: 2,
-      availableCopies: 1,
-      location: "C-22",
-      rating: 4.1,
-      publishYear: 1988,
-      pages: 256,
-    },
-    {
-      id: 5,
-      title: "Pride and Prejudice",
-      author: "Jane Austen",
-      category: "Literature",
-      description:
-        "A romantic novel about love, class, and social expectations in 19th century England.",
-      available: true,
-      totalCopies: 3,
-      availableCopies: 1,
-      location: "A-12",
-      rating: 4.3,
-      publishYear: 1813,
-      pages: 432,
-    },
-    {
-      id: 6,
-      title: "The Catcher in the Rye",
-      author: "J.D. Salinger",
-      category: "Literature",
-      description:
-        "A coming-of-age story following teenager Holden Caulfield in New York City.",
-      available: false,
-      totalCopies: 2,
-      availableCopies: 0,
-      location: "A-18",
-      rating: 3.8,
-      publishYear: 1951,
-      pages: 277,
-    },
   ];
 
-  const categories = [
-    "all",
-    "Fiction",
-    "Literature",
-    "Science",
-    "Non-Fiction",
-    "History",
-  ];
+  const categories = ["all", "Fiction", "Literature", "Science", "Non-Fiction", "History"];
 
   const filteredBooks = mockBooks.filter((book) => {
     const matchesSearch =
@@ -127,8 +61,7 @@ export function UserSearch() {
       book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       book.author.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory =
-      categoryFilter === "all" || book.category === categoryFilter;
+    const matchesCategory = categoryFilter === "all" || book.category === categoryFilter;
 
     const matchesAvailability =
       availabilityFilter === "all" ||
@@ -149,153 +82,133 @@ export function UserSearch() {
   return (
     <div className="usersearch-container">
       {/* Header */}
-      <div className="usersearch-header">
+      <header className="usersearch-header">
         <h1>Search Books</h1>
-        <p>Discover your next great read from our extensive collection</p>
-      </div>
+        <p>Discover your next great read from our collection</p>
+      </header>
 
-      {/* Search and Filter Controls */}
-      <Card className="usersearch-filter-card">
-        <CardHeader>
-          <CardTitle className="usersearch-filter-title">
-            <Search className="usersearch-filter-icon" />
-            Find Your Next Book
-          </CardTitle>
-          <CardDescription>
-            Search by title, author, or browse by category
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="usersearch-controls">
-            <div className="usersearch-search-row">
-              <div className="usersearch-search-input">
-                <Input
-                  placeholder="Search by title or author..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="usersearch-filter-row">
-              <Select
-                className="usersearch-filter-select"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category === "all" ? "All Categories" : category}
-                  </SelectItem>
-                ))}
-              </Select>
-              <Select
-                className="usersearch-filter-select"
-                value={availabilityFilter}
-                onChange={(e) => setAvailabilityFilter(e.target.value)}
-              >
-                <SelectItem value="all">All Books</SelectItem>
-                <SelectItem value="available">Available Now</SelectItem>
-                <SelectItem value="unavailable">Currently Borrowed</SelectItem>
-              </Select>
-            </div>
+      {/* Filter Section */}
+      <section className="usersearch-filters">
+        <div className="filter-group">
+          <div className="filter-search">
+            <Search className="filter-icon" />
+            <input
+              type="text"
+              placeholder="Search by title or author..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="filter-input"
+            />
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Category Filter */}
+          <Select.Root value={categoryFilter} onValueChange={setCategoryFilter}>
+            <Select.Trigger className="filter-select">
+              <Select.Value placeholder="All Categories" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Content className="select-dropdown">
+                <Select.Viewport>
+                  {categories.map((category) => (
+                    <Select.Item key={category} value={category} className="select-item">
+                      <Select.ItemText>
+                        {category === "all" ? "All Categories" : category}
+                      </Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.Viewport>
+              </Select.Content>
+            </Select.Portal>
+          </Select.Root>
+
+          {/* Availability Filter */}
+          <Select.Root value={availabilityFilter} onValueChange={setAvailabilityFilter}>
+            <Select.Trigger className="filter-select">
+              <Select.Value placeholder="All Books" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Content className="select-dropdown">
+                <Select.Viewport>
+                  <Select.Item value="all" className="select-item">
+                    <Select.ItemText>All Books</Select.ItemText>
+                  </Select.Item>
+                  <Select.Item value="available" className="select-item">
+                    <Select.ItemText>Available Now</Select.ItemText>
+                  </Select.Item>
+                  <Select.Item value="unavailable" className="select-item">
+                    <Select.ItemText>Currently Borrowed</Select.ItemText>
+                  </Select.Item>
+                </Select.Viewport>
+              </Select.Content>
+            </Select.Portal>
+          </Select.Root>
+        </div>
+      </section>
 
       {/* Results Summary */}
-      <div className="usersearch-results-summary">
-        <p>
-          Found {filteredBooks.length} book
-          {filteredBooks.length !== 1 ? "s" : ""}
-        </p>
+      <div className="results-summary">
+        Found {filteredBooks.length} book{filteredBooks.length !== 1 ? "s" : ""}
       </div>
 
-      {/* Books Grid */}
-      <div className="usersearch-books-grid">
+      {/* Book Grid */}
+      <div className="book-grid">
         {filteredBooks.map((book) => (
-          <Card key={book.id} className="usersearch-book-card">
-            <CardHeader>
-              <div className="usersearch-book-header">
-                <div className="usersearch-book-info">
-                  <h3 className="usersearch-book-title">{book.title}</h3>
-                  <p className="usersearch-book-author">by {book.author}</p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="usersearch-favorite-btn"
-                  onClick={() => handleAddToFavorites(book.id)}
-                >
-                  <Heart className="usersearch-favorite-icon" />
-                </Button>
+          <div key={book.id} className="book-card">
+            <div className="book-header">
+              <div>
+                <h3 className="book-title">{book.title}</h3>
+                <p className="book-author">by {book.author}</p>
               </div>
-              <div className="usersearch-badges">
-                <Badge variant="outline">{book.category}</Badge>
-                <Badge variant={book.available ? "default" : "secondary"}>
-                  {book.available ? "Available" : "Borrowed"}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="usersearch-book-description">{book.description}</p>
+              <button
+                className="favorite-btn"
+                onClick={() => handleAddToFavorites(book.id)}
+              >
+                <Heart />
+              </button>
+            </div>
 
-              <div className="usersearch-book-details">
-                <div className="usersearch-book-detail-item">
-                  <Calendar className="usersearch-detail-icon" />
-                  <span>
-                    Published {book.publishYear} • {book.pages} pages
-                  </span>
-                </div>
-                <div className="usersearch-book-detail-item">
-                  <MapPin className="usersearch-detail-icon" />
-                  <span>Location: {book.location}</span>
-                </div>
-                <div className="usersearch-book-detail-item">
-                  <BookOpen className="usersearch-detail-icon" />
-                  <span>
-                    {book.availableCopies} of {book.totalCopies} available
-                  </span>
-                </div>
-                <div className="usersearch-book-detail-item">
-                  <span className="usersearch-rating-star">★</span>
-                  <span>{book.rating}/5</span>
-                </div>
-              </div>
+            <div className="book-tags">
+              <span className="tag">{book.category}</span>
+              <span className={`tag ${book.available ? "available" : "borrowed"}`}>
+                {book.available ? "Available" : "Borrowed"}
+              </span>
+            </div>
 
-              <div className="usersearch-book-actions">
-                {book.available ? (
-                  <Button
-                    className="usersearch-full-btn"
-                    onClick={() => handleReserve(book.id)}
-                  >
-                    Reserve Book
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className="usersearch-full-btn"
-                    disabled
-                  >
-                    Currently Unavailable
-                  </Button>
-                )}
-                <Button variant="ghost" className="usersearch-full-btn">
-                  View Details
-                </Button>
+            <p className="book-description">{book.description}</p>
+
+            <div className="book-details">
+              <div>
+                <Calendar /> Published {book.publishYear} • {book.pages} pages
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <MapPin /> Location: {book.location}
+              </div>
+              <div>
+                <BookOpen /> {book.availableCopies} of {book.totalCopies} available
+              </div>
+              <div>★ {book.rating}/5</div>
+            </div>
+
+            <div className="book-actions">
+              <button
+                className="reserve-btn"
+                onClick={() => handleReserve(book.id)}
+                disabled={!book.available}
+              >
+                {book.available ? "Reserve Book" : "Currently Unavailable"}
+              </button>
+              <button className="details-btn">View Details</button>
+            </div>
+          </div>
         ))}
       </div>
 
       {filteredBooks.length === 0 && (
-        <Card className="usersearch-empty-state">
-          <CardContent>
-            <BookOpen className="usersearch-empty-icon" />
-            <h3>No books found</h3>
-            <p>Try adjusting your search terms or filters</p>
-          </CardContent>
-        </Card>
+        <div className="no-results">
+          <BookOpen className="no-results-icon" />
+          <h3>No books found</h3>
+          <p>Try adjusting your search terms or filters.</p>
+        </div>
       )}
     </div>
   );

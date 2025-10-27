@@ -1,7 +1,7 @@
 /***********************
- * Plain CSS Styles for Label
+ * Label Component Styles
  ***********************/
-
+ 
 .label {
   display: flex;
   align-items: center;

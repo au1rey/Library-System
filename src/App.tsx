@@ -4,12 +4,10 @@ import { SignIn } from "./components/auth/SignIn.tsx";
 import { SignUp } from "./components/auth/SignUp.tsx";
 import { AdminWelcome } from "./components/admins/AdminWelcome.tsx";
 import { UserWelcome } from "./components/users/UserWelcome.tsx";
-import { UserSearch } from "./components/users/UserSearch.tsx";
-/*
 import { AddBook } from "./components/admins/AdminAddBook.tsx";
 import { AdminSearch } from "./components/admins/AdminSearch.tsx";
 import { UserSearch } from "./components/users/UserSearch.tsx";
-import { UserBooks } from "./components/users/UserBooks.tsx";*/
+import { UserBooks } from "./components/users/UserBooks.tsx";
 import "./globals.css";
 
 // Define the possible screens
@@ -76,10 +74,10 @@ export default function App() {
         return <SignUp onSignUp={handleSignUp} onNavigate={handleNavigate} />;
       case "admin-welcome":
         return <AdminWelcome onNavigate={handleNavigate} />;
-      /* case 'admin-add-book':  TO::DO Uncomment when components are ready
+      case 'admin-add-book': 
         return <AddBook />;
       case 'admin-search':
-        return <AdminSearch />; */
+        return <AdminSearch />;
       case "user-welcome":
         return <UserWelcome onNavigate={handleNavigate} />;
       case "user-search":
