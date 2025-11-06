@@ -1,5 +1,5 @@
 /***********************
- * Book.ts - Book Model
+ * Books.ts - Book Model
  * Defines the Book interface
  * Does not need to be a class - purely for book information
  ***********************/
