@@ -1,7 +1,16 @@
+/*********************************
+* File Name: NavBar.tsx 
+* About:
+*   Navigation bar component for the library management system.
+*   Displays different navigation options based on user type (admin or user).
+*   Includes a logout button.
+**********************************/
+
 import { LogOut, BookOpen } from "lucide-react";
 import { Button } from "./ui/button";
 import './styles/Navbar.css';
 
+// Props for Navbar component: admin/user type, navigation handler, logout handler
 interface NavbarProps {
   userType: 'admin' | 'user' | null;
   onNavigate: (screen: string) => void;
@@ -14,9 +23,9 @@ export function Navbar({ userType, onNavigate, onLogout }: NavbarProps) {
       <div className="nav-container">
         <div className="nav-left">
           <BookOpen className="nav-icon" />
-          <h1 className="nav-title">LibrarySystem</h1>
+          <h1 className="nav-title">Library System</h1> {/* Library Header and Icon */} 
         </div>
-
+        {/* Admin Nav Buttons*/} 
         <div className="nav-links">
           {userType === 'admin' && (
             <>
@@ -31,7 +40,7 @@ export function Navbar({ userType, onNavigate, onLogout }: NavbarProps) {
               </Button>
             </>
           )}
-
+          {/* User Nav Buttons*/} 
           {userType === 'user' && (
             <>
               <Button variant="ghost" onClick={() => onNavigate('user-welcome')}>
@@ -45,7 +54,7 @@ export function Navbar({ userType, onNavigate, onLogout }: NavbarProps) {
               </Button>
             </>
           )}
-
+          {/* Log Out Button*/} 
           {userType && (
             <Button variant="outline" onClick={onLogout}>
               <LogOut className="logout-icon" />

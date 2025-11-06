@@ -1,3 +1,10 @@
+/*********************************
+* File Name: SignIn.tsx 
+* About:
+*   Sign-in component for the library management system.
+*   Handles user authentication for both admins and regular users.
+*   
+**********************************/
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";

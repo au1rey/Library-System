@@ -1,3 +1,8 @@
+/***********************
+ * Database.ts - Database Configuration
+ * Creates pool
+ * Throws an error if not connected to PostgreSQL
+ ***********************/
 import { Pool } from "pg";
 import dotenv from "dotenv";
 
@@ -18,25 +23,12 @@ const pool = new Pool({
 
 // Test connection
 pool.on("connect", () => {
-  console.log("✅ Connected to PostgreSQL database");
+  console.log("Connected to PostgreSQL database");
 });
 
 pool.on("error", (err) => {
-  console.error("❌ Unexpected database error:", err);
+  console.error("Unexpected database error:", err);
   process.exit(-1);
 });
 
 export default pool;
-```
-
----
-
-### 2. **Update `.env`** for PostgreSQL
-```;
-DB_HOST = localhost;
-DB_USER = postgres;
-DB_PASSWORD = your_postgres_password;
-DB_NAME = library_db;
-DB_PORT = 5432;
-
-PORT = 3000;
