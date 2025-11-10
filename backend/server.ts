@@ -10,6 +10,7 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import pool from "./config/database"; 
+import bookCopyRoutes from "./routes/bookCopies";
 
 // Load environment variables
 dotenv.config();
@@ -59,6 +60,11 @@ app.get("/api/db-test", async (req: Request, res: Response) => {
     });
   }
 });
+
+// ============================================
+// 6. ROUTES
+// ============================================
+app.use("/api/bookCopies", bookCopyRoutes);
 
 // ============================================
 // 7. ERROR HANDLING

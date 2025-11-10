@@ -21,6 +21,8 @@ export class BookCopy {
       "SELECT * FROM book_copy WHERE copy_id=$1",
       [copyId]
     );
+    // error handling
+    if (result.rows.length === 0) throw new Error("Book copy not found"); 
     const row = result.rows[0];
     return new BookCopy(row.copy_id, row.book_id, row.status);
   }
