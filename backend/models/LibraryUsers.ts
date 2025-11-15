@@ -13,13 +13,15 @@ export class LibraryUser {
   name: string;
   email: string;
   password: string;
+  userRole: string;
 
   // Constructor to initialize a LibraryUser
-  constructor(id: number, name: string, email: string, password: string) {
+  constructor(id: number, name: string, email: string, password: string, userRole: string) {
     this.id = id;
     this.name = name;
     this.email = email;
     this.password = password;
+    this.userRole = "user"; // default role
   }
 
   // Method to hash the user's password
@@ -40,6 +42,6 @@ export class LibraryUser {
   static async load(userId: number) {
     const result = await db.query("SELECT * FROM library_users WHERE id=$1", [userId]); // query database by userId
     const row = result.rows[0];
-    return new LibraryUser(row.id, row.name, row.email, row.password);
+    return new LibraryUser(row.id, row.name, row.email, row.password, row.user_role); // return new LibraryUser object
   }
 }

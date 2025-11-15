@@ -6,7 +6,7 @@ import { BookCopy } from "../models/BookCopy";
 import { LibraryUser } from "../models/LibraryUsers";
 import { Book } from "../models/Books";
 import { Router, Request, Response } from "express";
-import pool from "../config/database";
+import db from "../config/database";
 
 const router = Router(); // mini server that handles routes
 
