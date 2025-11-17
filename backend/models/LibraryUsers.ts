@@ -8,7 +8,7 @@ import db from "../config/database";
 
 // Class representing a library user
 export class LibraryUser {
-// Class variables
+  // Class variables
   id: number;
   name: string;
   email: string;
@@ -16,7 +16,13 @@ export class LibraryUser {
   userRole: string;
 
   // Constructor to initialize a LibraryUser
-  constructor(id: number, name: string, email: string, password: string, userRole: string) {
+  constructor(
+    id: number,
+    name: string,
+    email: string,
+    password: string,
+    userRole: string
+  ) {
     this.id = id;
     this.name = name;
     this.email = email;
@@ -28,7 +34,7 @@ export class LibraryUser {
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
   }
-  
+
   // Method to check if a given password matches the stored hashed password
   async checkPassword(plain: string) {
     return bcrypt.compare(plain, this.password);
@@ -36,12 +42,20 @@ export class LibraryUser {
 
   /***********************
    * Load function to get LibraryUser by ID
-   * @param userId 
+   * @param userId
    * @returns LibraryUser
    **********************/
   static async load(userId: number) {
-    const result = await db.query("SELECT * FROM library_users WHERE id=$1", [userId]); // query database by userId
+    const result = await db.query("SELECT * FROM library_users WHERE id=$1", [
+      userId,
+    ]); // query database by userId
     const row = result.rows[0];
-    return new LibraryUser(row.id, row.name, row.email, row.password, row.user_role); // return new LibraryUser object
+    return new LibraryUser(
+      row.id,
+      row.name,
+      row.email,
+      row.password,
+      row.user_role
+    ); // return new LibraryUser object
   }
 }
