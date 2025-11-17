@@ -48,7 +48,7 @@ export const api = {
    * @returns User data with role
    ***********************/
   signIn: (email: string, password: string) =>
-    request("/users/login", {
+    request("/api/users/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),
