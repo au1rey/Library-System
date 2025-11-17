@@ -67,7 +67,7 @@ export const api = {
     password: string,
     userRole?: string
   ) =>
-    request("/users/register", {
+    request("/api/users/register", {
       method: "POST",
       body: JSON.stringify({
         fullName,

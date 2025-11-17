@@ -55,6 +55,26 @@ export default function App() {
     setIsLoading(false);
   }, []);
 
+   /***********************
+   * Show loading screen while checking authentication
+   ***********************/
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontSize: "1.25rem",
+        }}
+      >
+        Loading...
+      </div>
+    );
+  }
+
+
   /***********************
    * SIGN IN FUNCTION
    * Handle role-based sign in and navigate to respective welcome screen
@@ -74,13 +94,10 @@ export default function App() {
    ***********************/
   const handleSignUp = (type: "admin" | "user") => {
     setUserType(type);
-    if (type === "admin") {
-      setCurrentScreen("admin-welcome");
-    } else {
-      setCurrentScreen("user-welcome");
-    }
+    setCurrentScreen("sign-in");
   };
 
+ 
   /***********************
    * LOGOUT FUNCTION
    * Clear user session and navigate to sign-in screen
@@ -126,27 +143,10 @@ export default function App() {
     }
   };
 
-  /***********************
-   * Show loading screen while checking authentication
-   ***********************/
-  if (isLoading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          fontSize: "1.25rem",
-        }}
-      >
-        Loading...
-      </div>
-    );
-  }
 
   // Conditionally render Navbar on everything but auth screens
-  const showNavBar = currentScreen !== "sign-in" && currentScreen !== "sign-up";
+ // const showNavBar = currentScreen !== "sign-in" && currentScreen !== "sign-up";
+  const showNavBar = userType !== null;
 
   return (
     <div className="app-container">
@@ -159,5 +159,6 @@ export default function App() {
       )}
       {renderContent()}
     </div>
+    
   );
 }
