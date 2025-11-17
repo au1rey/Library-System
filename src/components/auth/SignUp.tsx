@@ -1,3 +1,9 @@
+/*********************************
+ * File Name: SignUp.tsx
+ * About:
+ *   Sign-up component for the library management system.
+ *   Handles user registration for both admins and regular users.
+ **********************************/
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -9,8 +15,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { BookOpen } from "lucide-react";
-import "../styles/signup.css";
+import { api } from "../../services/api";
+import "../styles/signin.css";
 
 interface SignUpProps {
   onSignUp: (userType: "admin" | "user") => void;
@@ -18,143 +24,123 @@ interface SignUpProps {
 }
 
 export function SignUp({ onSignUp, onNavigate }: SignUpProps) {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  /***********************
+   * Handle sign-up form submission
+   * Calls backend API and navigates on success
+   ***********************/
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
-      return;
-    }
-    // Simple demo logic
-    if (formData.email.includes("admin")) {
-      onSignUp("admin");
-    } else {
-      onSignUp("user");
-    }
-  };
+    setError("");
+    setLoading(true);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    try {
+      // Call real API via api service
+      const data = await api.signUp(fullName, email, password);
+
+      // Notify App.tsx with user role (admin or user)
+      onSignUp(data.userRole);
+    } catch (err) {
+      // Display error message to user
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Sign up failed. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="signup-container">
-      <div className="signup-wrapper">
+    <div className="signin-container">
+      <div className="signin-wrapper">
         {/* Header */}
-        <div className="signup-header">
-          <div className="signup-logo-container">
-            <BookOpen className="signup-logo" />
-          </div>
-          <h2>Create Account</h2>
-          <p>Join our library community</p>
+        <div className="signin-header">
+          <h2>Create an Account</h2>
+          <p>Sign up to access the library system</p>
         </div>
 
         {/* Sign Up Form */}
         <Card>
           <CardHeader>
             <CardTitle>Sign Up</CardTitle>
-            <CardDescription>
-              Create your library account to get started
-            </CardDescription>
+            <CardDescription>Enter your details below</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="signup-form-group">
-              <div className="signup-name-grid">
-                <div className="signup-field">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    type="text"
-                    placeholder="John"
-                    value={formData.firstName}
-                    onChange={(e) =>
-                      handleInputChange("firstName", e.target.value)
-                    }
-                    required
-                  />
-                </div>
+            {/* Error Message Display */}
+            {error && (
+              <div
+                style={{
+                  padding: "0.75rem",
+                  backgroundColor: "#fee2e2",
+                  color: "#991b1b",
+                  borderRadius: "0.375rem",
+                  marginBottom: "1rem",
+                  border: "1px solid #fca5a5",
+                }}
+              >
+                {error}
+              </div>
+            )}
 
-                <div className="signup-field">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    type="text"
-                    placeholder="Doe"
-                    value={formData.lastName}
-                    onChange={(e) =>
-                      handleInputChange("lastName", e.target.value)
-                    }
-                    required
-                  />
-                </div>
+            <form onSubmit={handleSubmit} className="signin-form-group">
+              <div className="signin-field">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  disabled={loading}
+                />
               </div>
 
-              <div className="signup-field">
+              <div className="signin-field">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="john.doe@example.com"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
 
-              <div className="signup-field">
+              <div className="signin-field">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Create a strong password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    handleInputChange("password", e.target.value)
-                  }
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
 
-              <div className="signup-field">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    handleInputChange("confirmPassword", e.target.value)
-                  }
-                  required
-                />
-              </div>
-
-              <Button type="submit" className="signup-form-group">
-                Create Account
+              <Button type="submit" disabled={loading}>
+                {loading ? "Signing up..." : "Sign Up"}
               </Button>
             </form>
 
-            <div className="signup-link-section">
+            {/* Navigation link to Sign In */}
+            <div className="signin-link-section">
               <p>
                 Already have an account?{" "}
-                <button onClick={() => onNavigate("sign-in")}>Sign in</button>
+                <button
+                  onClick={() => onNavigate("sign-in")}
+                  disabled={loading}
+                >
+                  Sign in
+                </button>
               </p>
-            </div>
-
-            {/* Demo Instructions */}
-            <div className="signup-demo-box">
-              <p>
-                <strong>Demo Instructions:</strong>
-              </p>
-              <p>• Use any email with "admin" for admin access</p>
-              <p>• Use any other email for user access</p>
             </div>
           </CardContent>
         </Card>
