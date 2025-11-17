@@ -1,10 +1,14 @@
 /*********************************
-* File Name: SignIn.tsx 
-* About:
-*   Sign-in component for the library management system.
-*   Handles user authentication for both admins and regular users.
-*   
-**********************************/
+ * File Name: SignIn.tsx
+ * About:
+ *   Sign-in component for the library management system.
+ *   Handles user authentication for both admins and regular users.
+ *   Now connects to real backend API instead of demo logic.
+ * Changes:
+ *   - Added API integration via auth service
+ *   - Added error handling and loading states
+ *   - Removed demo instructions
+ **********************************/
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -17,6 +21,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { BookOpen } from "lucide-react";
+import { signIn } from "../../services/auth";
 import "../styles/signin.css";
 
 interface SignInProps {
@@ -27,14 +32,33 @@ interface SignInProps {
 export function SignIn({ onSignIn, onNavigate }: SignInProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  /***********************
+   * Handle sign-in form submission
+   * Calls backend API and navigates on success
+   ***********************/
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple demo logic - in real app, this would validate against a database
-    if (email.includes("admin")) {
-      onSignIn("admin");
-    } else {
-      onSignIn("user");
+    setError("");
+    setLoading(true);
+
+    try {
+      // Call real API via auth service
+      const user = await signIn(email, password);
+
+      // Notify App.tsx with user role (admin or user)
+      onSignIn(user.userRole);
+    } catch (err) {
+      // Display error message to user
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Sign in failed. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,6 +84,22 @@ export function SignIn({ onSignIn, onNavigate }: SignInProps) {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="signin-form-group">
+              {/* Error Message Display */}
+              {error && (
+                <div
+                  style={{
+                    padding: "0.75rem",
+                    backgroundColor: "#fee2e2",
+                    color: "#991b1b",
+                    borderRadius: "0.375rem",
+                    marginBottom: "1rem",
+                    border: "1px solid #fca5a5",
+                  }}
+                >
+                  {error}
+                </div>
+              )}
+
               <div className="signin-field">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -69,6 +109,7 @@ export function SignIn({ onSignIn, onNavigate }: SignInProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -81,28 +122,29 @@ export function SignIn({ onSignIn, onNavigate }: SignInProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
 
-              <Button type="submit" className="signin-form-group">
-                Sign In
+              <Button
+                type="submit"
+                className="signin-form-group"
+                disabled={loading}
+              >
+                {loading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
 
             <div className="signin-link-section">
               <p>
                 Don't have an account?{" "}
-                <button onClick={() => onNavigate("sign-up")}>Sign up</button>
+                <button
+                  onClick={() => onNavigate("sign-up")}
+                  disabled={loading}
+                >
+                  Sign up
+                </button>
               </p>
-            </div>
-
-            {/* Demo Instructions */}
-            <div className="signin-demo-box">
-              <p>
-                <strong>Demo Instructions:</strong>
-              </p>
-              <p>• Use any email with "admin" for admin access</p>
-              <p>• Use any other email for user access</p>
             </div>
           </CardContent>
         </Card>
