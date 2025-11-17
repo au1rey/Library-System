@@ -3,6 +3,7 @@
  * About:
  *   Sign-up component for the library management system.
  *   Handles user registration for both admins and regular users.
+ *  connects to real backend API
  **********************************/
 import { useState } from "react";
 import { Button } from "../ui/button";

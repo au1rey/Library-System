@@ -3,7 +3,7 @@
  * About:
  *   Sign-in component for the library management system.
  *   Handles user authentication for both admins and regular users.
- *   Now connects to real backend API instead of demo logic.
+ *   connects to real backend API
  * Changes:
  *   - Added API integration via auth service
  *   - Added error handling and loading states
