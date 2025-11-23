@@ -1,12 +1,25 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { BookOpen, Upload } from "lucide-react";
-
+import { api } from "../../services/api";
+1;
 export function AddBook() {
   const [formData, setFormData] = useState({
     title: "",
@@ -17,27 +30,54 @@ export function AddBook() {
     category: "",
     description: "",
     copies: "",
-    location: ""
+    location: "",
+    pages: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Book added successfully! (Demo mode)");
-    setFormData({
-      title: "",
-      author: "",
-      isbn: "",
-      publisher: "",
-      publishYear: "",
-      category: "",
-      description: "",
-      copies: "",
-      location: ""
-    });
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
+      // Real API integration
+      await api.addBook(formData);
+
+      // Success feedback
+      setSuccess("Book added successfully!");
+
+      // Clear form
+      setFormData({
+        title: "",
+        author: "",
+        isbn: "",
+        publisher: "",
+        publishYear: "",
+        category: "",
+        description: "",
+        copies: "",
+        location: "",
+        pages: "",
+      });
+    } catch (err) {
+      // Error handling
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to add book. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const categories = [
@@ -50,7 +90,7 @@ export function AddBook() {
     "Literature",
     "Reference",
     "Children's Books",
-    "Other"
+    "Other",
   ];
 
   return (
@@ -68,11 +108,19 @@ export function AddBook() {
               <BookOpen className="book-icon" />
               Book Information
             </CardTitle>
-            <CardDescription>Fill in the details for the new book</CardDescription>
+            <CardDescription>
+              Fill in the details for the new book
+            </CardDescription>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleSubmit} className="book-form">
+              {/* Success Message */}
+              {success && <div className="success-message">{success}</div>}
+
+              {/* Error Message */}
+              {error && <div className="error-message">{error}</div>}
+
               {/* Basic Information */}
               <div className="form-section">
                 <div className="form-row">
@@ -82,8 +130,11 @@ export function AddBook() {
                       id="title"
                       placeholder="Enter book title"
                       value={formData.title}
-                      onChange={(e) => handleInputChange('title', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("title", e.target.value)
+                      }
                       required
+                      disabled={loading}
                     />
                   </div>
                   <div className="form-group">
@@ -92,8 +143,11 @@ export function AddBook() {
                       id="author"
                       placeholder="Enter author name"
                       value={formData.author}
-                      onChange={(e) => handleInputChange('author', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("author", e.target.value)
+                      }
                       required
+                      disabled={loading}
                     />
                   </div>
                 </div>
@@ -105,14 +159,20 @@ export function AddBook() {
                       id="isbn"
                       placeholder="Enter ISBN"
                       value={formData.isbn}
-                      onChange={(e) => handleInputChange('isbn', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("isbn", e.target.value)
+                      }
+                      disabled={loading}
                     />
                   </div>
                   <div className="form-group">
                     <Label htmlFor="category">Category *</Label>
                     <Select
                       value={formData.category}
-                      onValueChange={(value) => handleInputChange('category', value)}
+                      onValueChange={(value) =>
+                        handleInputChange("category", value)
+                      }
+                      disabled={loading}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
@@ -135,7 +195,10 @@ export function AddBook() {
                       id="publisher"
                       placeholder="Enter publisher"
                       value={formData.publisher}
-                      onChange={(e) => handleInputChange('publisher', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("publisher", e.target.value)
+                      }
+                      disabled={loading}
                     />
                   </div>
                   <div className="form-group">
@@ -145,7 +208,27 @@ export function AddBook() {
                       type="number"
                       placeholder="2024"
                       value={formData.publishYear}
-                      onChange={(e) => handleInputChange('publishYear', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("publishYear", e.target.value)
+                      }
+                      disabled={loading}
+                    />
+                  </div>
+                </div>
+
+                {/* New Pages Field */}
+                <div className="form-row">
+                  <div className="form-group">
+                    <Label htmlFor="pages">Number of Pages</Label>
+                    <Input
+                      id="pages"
+                      type="number"
+                      placeholder="Enter page count"
+                      value={formData.pages}
+                      onChange={(e) =>
+                        handleInputChange("pages", e.target.value)
+                      }
+                      disabled={loading}
                     />
                   </div>
                 </div>
@@ -157,7 +240,10 @@ export function AddBook() {
                     placeholder="Enter book description..."
                     rows={4}
                     value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("description", e.target.value)
+                    }
+                    disabled={loading}
                   />
                 </div>
 
@@ -170,8 +256,11 @@ export function AddBook() {
                       placeholder="1"
                       min="1"
                       value={formData.copies}
-                      onChange={(e) => handleInputChange('copies', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("copies", e.target.value)
+                      }
                       required
+                      disabled={loading}
                     />
                   </div>
                   <div className="form-group">
@@ -180,7 +269,10 @@ export function AddBook() {
                       id="location"
                       placeholder="e.g., A-15, B-23"
                       value={formData.location}
-                      onChange={(e) => handleInputChange('location', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("location", e.target.value)
+                      }
+                      disabled={loading}
                     />
                   </div>
                 </div>
@@ -198,8 +290,10 @@ export function AddBook() {
 
               {/* Submit Button */}
               <div className="button-row">
-                <Button type="submit">Add Book</Button>
-                <Button type="button" variant="outline">
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Adding Book..." : "Add Book"}
+                </Button>
+                <Button type="button" variant="outline" disabled={loading}>
                   Save as Draft
                 </Button>
               </div>

@@ -86,6 +86,7 @@ export const api = {
    * @returns User data
    ***********************/
   getUser: (id: number) => request(`/users/${id}`, { method: "GET" }),
+
   /***********************
    * BOOK ENDPOINTS
    ***********************/
