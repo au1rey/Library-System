@@ -36,7 +36,7 @@ type UserType = "admin" | "user" | null;
 
 export default function App() {
   // State to track current screen and user type
-  const [currentScreen, setCurrentScreen] = useState<Screen>("sign-in");
+  const [currentScreen, setCurrentScreen] = useState<Screen>("sign-in"); // Default to sign-in
   const [userType, setUserType] = useState<UserType>(null);
   const [isLoading, setIsLoading] = useState(true);
 

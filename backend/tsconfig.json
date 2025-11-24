@@ -13,6 +13,6 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "models/hash.js"],
   "exclude": ["node_modules", "dist"]
 }

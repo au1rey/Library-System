@@ -86,15 +86,25 @@ export function signOut(): void {
 
 /***********************
  * Get current user from localStorage
+ * Added validation to ensure data integrity
  * @returns User object if logged in, null otherwise
  ***********************/
-export function getCurrentUser(): User | null {
-  const userStr = localStorage.getItem("currentUser");
-  if (!userStr) return null;
-
+export function getCurrentUser() {
   try {
-    return JSON.parse(userStr);
+    const user = localStorage.getItem("user");
+    if (!user) return null;
+
+    const parsed = JSON.parse(user);
+
+    // Validate shape before trusting it
+    if (!parsed || typeof parsed !== "object") return null;
+    if (!parsed.userRole || !["admin", "user"].includes(parsed.userRole)) {
+      return null; // invalid → treat as no user
+    }
+
+    return parsed;
   } catch {
-    return null;
+    return null; // JSON parse failed
   }
 }
+
