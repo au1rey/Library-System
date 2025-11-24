@@ -8,6 +8,9 @@
  *   - signIn(): POST /users/login - Authenticate user
  *   - signUp(): POST /users/register - Register new user
  *   - getUser(): GET /users/:id - Fetch user by ID
+ *   - addBook(): POST /books - Add new book (admin only)
+ *   - getBooks(): GET /books - Fetch all books
+ *   - getBook(): GET /books/:id - Fetch single book
  ***********************/
 
 /***********************
@@ -83,4 +86,43 @@ export const api = {
    * @returns User data
    ***********************/
   getUser: (id: number) => request(`/users/${id}`, { method: "GET" }),
+
+  /***********************
+   * BOOK ENDPOINTS
+   ***********************/
+
+  /***********************
+   * Add new book (admin only)
+   * @param bookData - Book information from form
+   * @returns Created book data
+   ***********************/
+  addBook: (bookData: {
+    title: string;
+    author: string;
+    isbn?: string;
+    publisher?: string;
+    publishYear?: string;
+    category?: string;
+    description?: string;
+    copies: string;
+    location?: string;
+    pages?: string;
+  }) =>
+    request("/books", {
+      method: "POST",
+      body: JSON.stringify(bookData),
+    }),
+
+  /***********************
+   * Get all books
+   * @returns Array of all books
+   ***********************/
+  getBooks: () => request("/books", { method: "GET" }),
+
+  /***********************
+   * Get single book by ID
+   * @param id - Book ID
+   * @returns Book data
+   ***********************/
+  getBook: (id: number) => request(`/books/${id}`, { method: "GET" }),
 };
