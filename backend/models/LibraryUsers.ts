@@ -27,7 +27,7 @@ export class LibraryUser {
     this.name = name;
     this.email = email;
     this.password = password;
-    this.userRole = "user"; // default role
+    this.userRole = userRole; // default role
   }
 
   // Method to hash the user's password

@@ -108,7 +108,7 @@ export const api = {
     location?: string;
     pages?: string;
   }) =>
-    request("/books", {
+    request("/api/books", {
       method: "POST",
       body: JSON.stringify(bookData),
     }),
@@ -117,12 +117,12 @@ export const api = {
    * Get all books
    * @returns Array of all books
    ***********************/
-  getBooks: () => request("/books", { method: "GET" }),
+  getBooks: () => request("/api/books", { method: "GET" }),
 
   /***********************
    * Get single book by ID
    * @param id - Book ID
    * @returns Book data
    ***********************/
-  getBook: (id: number) => request(`/books/${id}`, { method: "GET" }),
+  getBook: (id: number) => request(`/api/books/${id}`, { method: "GET" }),
 };

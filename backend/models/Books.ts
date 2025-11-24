@@ -7,10 +7,10 @@ export interface Book {
   book_id: number;
   title: string;
   author: string;
-  isbn?: string;
+  isbn: string;
   publisher?: string;
   publication_year?: number;
-  genre?: string;
+  genre: string;
   description?: string;
   total_copies: number;
   available_copies: number;

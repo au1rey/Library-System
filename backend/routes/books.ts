@@ -66,6 +66,42 @@ router.post("/", async (req: Request, res: Response) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+/***********************
+ * Books and book copies
+ *  joined data route
+ ***********************/
+router.get("/books-with-copies", async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT 
+        b.book_id,
+        b.title,
+        b.author,
+        b.isbn,
+        b.genre,
+        b.shelf_location AS location,
+        COUNT(bc.copy_id) AS total_copies,
+        SUM(CASE WHEN bc.status='available' THEN 1 ELSE 0 END) AS available_copies,
+        SUM(CASE WHEN bc.status='loaned' THEN 1 ELSE 0 END) AS borrowed,
+        CASE
+          WHEN SUM(CASE WHEN bc.status='available' THEN 1 ELSE 0 END) = 0 THEN 'Out of Stock'
+          WHEN SUM(CASE WHEN bc.status='available' THEN 1 ELSE 0 END) < 3 THEN 'Low Stock'
+          ELSE 'Available'
+        END AS status
+      FROM books b
+      LEFT JOIN book_copy bc ON b.book_id = bc.book_id
+      GROUP BY b.book_id
+      ORDER BY b.title;
+    `);
+    console.log("Books with copies:", result.rows);
+    res.json(result.rows);
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch books" });
+  }
+});
+
 /***********************
  * GET /books - Fetch all books
  ***********************/
@@ -97,4 +133,21 @@ router.get("/:id", async (req: Request, res: Response) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+/***********************
+ * DELETE /books/:id - deletes book and its copies
+************************/
+router.delete("/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    console.log("DELETE route hit", req.params); // <-- add this
+    await db.query("DELETE FROM books WHERE book_id = $1", [id]);
+    res.json({ message: "Book deleted successfully" });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 export default router;

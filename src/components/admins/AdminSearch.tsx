@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import type { BookWithCopies } from "../../../backend/models/BooksWithCopies";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
@@ -28,66 +29,32 @@ import { Search, Edit, Trash2, Eye, BookOpen } from "lucide-react";
 import "../styles/AdminSearch.css";
 
 export function AdminSearch() {
+  const [books, setBooks] = useState<BookWithCopies[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
 
-  const mockBooks = [
-    {
-      id: 1,
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      isbn: "978-0-7432-7356-5",
-      category: "Literature",
-      status: "Available",
-      copies: 3,
-      borrowed: 1,
-      location: "A-15",
-    },
-    {
-      id: 2,
-      title: "To Kill a Mockingbird",
-      author: "Harper Lee",
-      isbn: "978-0-06-112008-4",
-      category: "Literature",
-      status: "Available",
-      copies: 2,
-      borrowed: 0,
-      location: "A-16",
-    },
-    {
-      id: 3,
-      title: "1984",
-      author: "George Orwell",
-      isbn: "978-0-452-28423-4",
-      category: "Fiction",
-      status: "Low Stock",
-      copies: 1,
-      borrowed: 3,
-      location: "B-05",
-    },
-    {
-      id: 4,
-      title: "A Brief History of Time",
-      author: "Stephen Hawking",
-      isbn: "978-0-553-10953-5",
-      category: "Science",
-      status: "Available",
-      copies: 2,
-      borrowed: 1,
-      location: "C-22",
-    },
-    {
-      id: 5,
-      title: "The Catcher in the Rye",
-      author: "J.D. Salinger",
-      isbn: "978-0-316-76948-0",
-      category: "Literature",
-      status: "Out of Stock",
-      copies: 0,
-      borrowed: 2,
-      location: "A-18",
-    },
-  ];
+  // Loading and error states
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+  async function fetchBooks() {
+    try {
+      const res = await fetch("http://localhost:3000/api/books/books-with-copies"); // backend endpoint to joined data
+      if (!res.ok) throw new Error("Failed to fetch books");
+      const data = await res.json();
+      console.log("Fetched data:", data);
+      setBooks(data); // Store books in state
+    } catch (err: any) {
+      console.error("Error fetching books:", err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  fetchBooks();
+}, []);
 
   const categories = [
     "all",
@@ -98,7 +65,7 @@ export function AdminSearch() {
     "History",
   ];
 
-  const filteredBooks = mockBooks.filter((book) => {
+  const filteredBooks = books.filter((book) => {
     const matchesSearch =
       searchQuery === "" ||
       book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -106,11 +73,12 @@ export function AdminSearch() {
       book.isbn.includes(searchQuery);
 
     const matchesCategory =
-      categoryFilter === "all" || book.category === categoryFilter;
+      categoryFilter === "all" || book.genre === categoryFilter;
 
     return matchesSearch && matchesCategory;
   });
 
+  // Helper to get status badge color
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Available":
@@ -124,6 +92,22 @@ export function AdminSearch() {
     }
   };
 
+  // Handle delete book
+  async function handleDelete(bookId: number) {
+  if (!confirm("Are you sure you want to delete this book and all its copies?")) return;
+
+  try {
+    const res = await fetch(`http://localhost:3000/api/books/${bookId}`, { method: "DELETE" });
+    if (!res.ok) throw new Error("Failed to delete book");
+
+    // Remove from local state so table updates immediately
+    setBooks(books.filter((b) => b.book_id !== bookId));
+  } catch (err: any) {
+    console.error(err);
+    alert("Error deleting book");
+  }
+}
+  
   return (
     <div className="admin-container">
       {/* Header */}
@@ -166,7 +150,7 @@ export function AdminSearch() {
 
       {/* Results */}
       <div className="admin-results">
-        Showing {filteredBooks.length} of {mockBooks.length} books
+        Showing {filteredBooks.length} of {books.length} books
       </div>
 
       {/* Table */}
@@ -185,7 +169,7 @@ export function AdminSearch() {
             </TableHeader>
             <TableBody>
               {filteredBooks.map((book) => (
-                <TableRow key={book.id}>
+                <TableRow key={book.book_id}>
                   <TableCell>
                     <div className="book-info">
                       <p className="book-title">{book.title}</p>
@@ -194,7 +178,7 @@ export function AdminSearch() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge>{book.category}</Badge>
+                    <Badge>{book.genre}</Badge>
                   </TableCell>
                   <TableCell>
                     <Badge className={getStatusColor(book.status)}>
@@ -203,8 +187,8 @@ export function AdminSearch() {
                   </TableCell>
                   <TableCell>
                     <div className="book-copies">
-                      <p>Available: {book.copies}</p>
-                      <p className="book-meta">Borrowed: {book.borrowed}</p>
+                      <p>Available: {book.available_copies}</p>
+                      <p className="book-meta">Borrowed: {book.total_copies - book.available_copies}</p>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -218,7 +202,7 @@ export function AdminSearch() {
                       <Button>
                         <Edit size={16} />
                       </Button>
-                      <Button>
+                      <Button onClick={() => handleDelete(book.book_id)}>
                         <Trash2 size={16} />
                       </Button>
                     </div>
@@ -239,5 +223,5 @@ export function AdminSearch() {
         <Button>Bulk Edit</Button>
       </div>
     </div>
-  );
+  ); 
 }

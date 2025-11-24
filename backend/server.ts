@@ -70,7 +70,7 @@ app.get("/api/db-test", async (req: Request, res: Response) => {
 // 6. ROUTES
 // ============================================
 app.use("/api/bookCopies", bookCopyRoutes);
-app.use("/books", booksRoutes);
+app.use("/api/books", booksRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/loans", loanRoutes);
 app.use("/api/reservations", reservationRoutes);

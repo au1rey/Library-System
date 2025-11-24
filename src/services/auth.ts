@@ -35,6 +35,7 @@ export async function signIn(email: string, password: string): Promise<User> {
     const data = await api.signIn(email, password);
 
     // Store user in localStorage for session persistence
+    console.log("Backend login data:", data);
     localStorage.setItem("currentUser", JSON.stringify(data.user));
 
     return data.user;
@@ -99,7 +100,7 @@ export function getCurrentUser() {
     // Validate shape before trusting it
     if (!parsed || typeof parsed !== "object") return null;
     if (!parsed.userRole || !["admin", "user"].includes(parsed.userRole)) {
-      return null; // invalid → treat as no user
+      return null; // invalid = treat as no user
     }
 
     return parsed;
