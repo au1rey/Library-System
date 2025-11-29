@@ -126,12 +126,67 @@
   width: 1.25rem;
 }
 
-/* Full width button */
-.userwelcome-full-btn {
-  width: 100%;
+/* ========================================
+ * BUTTON FIXES - Force padding for all buttons
+ * ======================================== */
+
+/* Force padding on ALL buttons in UserWelcome */
+.userwelcome-container button {
+  padding: 10px 20px !important;
+  height: 40px;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
-/* Content grid - 2 columns on large screens */
+/* Small buttons */
+.userwelcome-container button[class*="sm"] {
+  padding: 6px 14px !important;
+  height: 32px;
+  font-size: 0.8rem;
+}
+
+/* Full width button */
+.userwelcome-full-btn {
+  width: 100% !important;
+}
+
+/* ========================================
+ * FIX: Add spacing around full-width buttons
+ * Prevents buttons from touching card edges
+ * ======================================== */
+
+/* Ensure CardContent has proper padding */
+.userwelcome-action-card [class*="CardContent"],
+.userwelcome-action-card [class*="card-content"] {
+  padding: 1.5rem;
+  padding-top: 0;
+}
+
+/* Add top margin to full-width buttons in action cards */
+.userwelcome-action-card .userwelcome-full-btn {
+  margin-top: 0.5rem;
+}
+
+/* Add margin to full-width buttons in card footers */
+.userwelcome-card-footer {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.userwelcome-card-footer .userwelcome-full-btn {
+  margin-top: 0;
+}
+
+/* Fix for recommendations "Explore More Books" button */
+.userwelcome-btn-spacing {
+  margin-bottom: 1rem;
+}
+
+/* Ensure book list has proper spacing before button */
+.userwelcome-book-list {
+  margin-bottom: 1rem;
+}
+
+/* Content grid */
 .userwelcome-content-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -144,13 +199,24 @@
   }
 }
 
-/* Book items list */
+/* Ensure cards shrink to content */
+.userwelcome-content-grid > * {
+  height: fit-content;
+}
+
+/* Book list blocks */
 .userwelcome-book-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
+/* Decreased spacing to remove blank area */
+.userwelcome-book-list-container {
+  margin-bottom: 0.5rem;
+}
+
+/* Book card */
 .userwelcome-book-item {
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
@@ -182,61 +248,88 @@
   margin: 0;
 }
 
-/* Progress bar */
-.userwelcome-progress-container {
-  width: 100%;
-  background-color: #f3f4f6;
-  border-radius: 9999px;
-  height: 0.5rem;
-  overflow: hidden;
+/* Removes extra padding causing blank space */
+.userwelcome-content-grid .card-content {
+  padding-bottom: 0 !important;
 }
 
-.userwelcome-progress-bar {
-  background-color: #2563eb;
-  height: 0.5rem;
-  border-radius: 9999px;
-  transition: width 0.3s ease;
+/* Overdue + Due Soon badges */
+.status-badge {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 4px;
 }
 
-.userwelcome-progress-text {
-  font-size: 0.875rem;
+.status-badge.overdue {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-badge.due {
+  background-color: #fff7ed;
+  color: #c2410c;
+}
+
+.status-badge.ontime {
+  background-color: #ecfdf5;
+  color: #047857;
+}
+
+.userwelcome-current-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.userwelcome-current-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background: #ffffff;
+}
+
+.userwelcome-current-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.userwelcome-current-status {
+  text-align: right;
+}
+
+.userwelcome-empty {
   color: #6b7280;
-  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
 }
 
-/* Recommendation item */
+.userwelcome-card-footer {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* Recommendations */
 .userwelcome-recommendation-item {
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   padding: 1rem;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .userwelcome-recommendation-info {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .userwelcome-recommendation-reason {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: #6b7280;
   margin: 0 0 0.5rem 0;
-}
-
-/* Button spacing */
-.userwelcome-btn-spacing {
-  margin-top: 1rem;
-}
-
-/* Fix padding for card content to prevent button overflow */
-.userwelcome-action-card .card-content {
-  padding: 1.5rem;
-}
-
-/* Add proper spacing for book lists inside cards */
-.userwelcome-book-list-container {
-  margin-bottom: 1rem;
-}
-
-/* Increase bottom padding for cards with bottom buttons to prevent spillage */
-.userwelcome-content-grid .card-content {
-  padding-bottom: 1.5rem;
+  font-style: italic;
 }

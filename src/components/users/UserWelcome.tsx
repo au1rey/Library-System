@@ -136,50 +136,73 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
 
       <div className="userwelcome-content-grid">
         {/* Currently Reading */}
+
         <Card>
           <CardHeader>
             <CardTitle className="userwelcome-action-title">
               <Clock className="userwelcome-action-icon" />
               Currently Reading
             </CardTitle>
-            <CardDescription>Track your reading progress</CardDescription>
+            <CardDescription>Your active borrowed books</CardDescription>
           </CardHeader>
+
           <CardContent>
-            <div className="userwelcome-book-list-container">
-              <div className="userwelcome-book-list">
-                {currentBooks.map((book, index) => (
-                  <div key={index} className="userwelcome-book-item">
-                    <div className="userwelcome-book-header">
-                      <div className="userwelcome-book-info">
-                        <p className="userwelcome-book-title">{book.title}</p>
-                        <p className="userwelcome-book-author">
-                          by {book.author}
-                        </p>
+            {/* Book List */}
+            {currentBooks.length === 0 ? (
+              <p className="userwelcome-empty">You have no active loans.</p>
+            ) : (
+              <div className="userwelcome-current-list">
+                {currentBooks.map((book, index) => {
+                  const now = new Date();
+                  const due = new Date(book.dueDate);
+
+                  const isOverdue = due < now;
+                  const daysRemaining =
+                    (due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+
+                  let status = "onTime";
+                  if (isOverdue) status = "overdue";
+                  else if (daysRemaining < 3) status = "due";
+
+                  return (
+                    <div key={index} className="userwelcome-current-item">
+                      <div className="userwelcome-current-header">
+                        <div>
+                          <p className="userwelcome-book-title">{book.title}</p>
+                          <p className="userwelcome-book-author">
+                            by {book.author}
+                          </p>
+                        </div>
+
+                        <div className="userwelcome-current-status">
+                          <p className="userwelcome-book-due">
+                            Due: {book.dueDate}
+                          </p>
+                          <span className={`status-badge ${status}`}>
+                            {status === "onTime"
+                              ? "On Time"
+                              : status === "due"
+                              ? "Due Soon"
+                              : "Overdue"}
+                          </span>
+                        </div>
                       </div>
-                      <p className="userwelcome-book-due">
-                        Due: {book.dueDate}
-                      </p>
                     </div>
-                    <div className="userwelcome-progress-container">
-                      <div
-                        className="userwelcome-progress-bar"
-                        style={{ width: `${book.progress}%` }}
-                      ></div>
-                    </div>
-                    <p className="userwelcome-progress-text">
-                      {book.progress}% complete
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+            )}
+
+            {/* Button Footer */}
+            <div className="userwelcome-card-footer">
+              <Button
+                variant="outline"
+                className="userwelcome-full-btn"
+                onClick={() => onNavigate("user-books")}
+              >
+                View All Your Books
+              </Button>
             </div>
-            <Button
-              variant="outline"
-              className="userwelcome-full-btn userwelcome-btn-spacing"
-              onClick={() => onNavigate("user-books")}
-            >
-              View All Your Books
-            </Button>
           </CardContent>
         </Card>
 
