@@ -1,6 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import * as Select from "@radix-ui/react-select";
 import { Search, Heart, BookOpen, Calendar, MapPin } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import "../styles/usersearch.css";
 import { api } from "../../services/api";
 
@@ -290,59 +296,36 @@ export function UserSearch() {
           </div>
 
           {/* Category Filter */}
-          <Select.Root
-            value={categoryFilter}
-            onValueChange={setCategoryFilter}
-          >
-            <Select.Trigger className="filter-select">
-              <Select.Value placeholder="All Categories" />
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Content className="select-dropdown">
-                <Select.Viewport>
-                  {categories.map((category) => (
-                    <Select.Item
-                      key={category}
-                      value={category}
-                      className="select-item"
-                    >
-                      <Select.ItemText>
-                        {category === "all" ? "All Categories" : category}
-                      </Select.ItemText>
-                    </Select.Item>
-                  ))}
-                </Select.Viewport>
-              </Select.Content>
-            </Select.Portal>
-          </Select.Root>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="filter-select">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category === "all" ? "All Categories" : category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           {/* Availability Filter */}
-          <Select.Root
+          <Select
             value={availabilityFilter}
             onValueChange={setAvailabilityFilter}
           >
-            <Select.Trigger className="filter-select">
-              <Select.Value placeholder="All Books" />
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Content className="select-dropdown">
-                <Select.Viewport>
-                  <Select.Item value="all" className="select-item">
-                    <Select.ItemText>All Books</Select.ItemText>
-                  </Select.Item>
-                  <Select.Item value="available" className="select-item">
-                    <Select.ItemText>Available Now</Select.ItemText>
-                  </Select.Item>
-                  <Select.Item value="unavailable" className="select-item">
-                    <Select.ItemText>Currently Borrowed</Select.ItemText>
-                  </Select.Item>
-                </Select.Viewport>
-              </Select.Content>
-            </Select.Portal>
-          </Select.Root>
+            <SelectTrigger className="filter-select">
+              <SelectValue placeholder="All Books" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Books</SelectItem>
+              <SelectItem value="available">Available Now</SelectItem>
+              <SelectItem value="unavailable">Currently Borrowed</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </section>
-
+      {/* Loading State */}
       {isLoading ? (
         <div className="results-summary">Loading books...</div>
       ) : (

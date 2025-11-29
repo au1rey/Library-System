@@ -152,25 +152,3 @@ button {
   min-height: 100vh;
   background-color: #f5f5f5;
 }
-
-/* FIX RADIX SELECT BLUE HIGHLIGHT */
-.SelectTrigger:focus {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-/* Removes blue highlight on selected item */
-.SelectItem[data-highlighted],
-.SelectItem:focus,
-.SelectItem:active {
-  background-color: #f3f4f6 !important; /* light gray */
-  color: #111827 !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-/* Removes the blue border around the dropdown itself */
-.SelectContent:focus {
-  outline: none !important;
-  box-shadow: none !important;
-}
