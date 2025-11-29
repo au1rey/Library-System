@@ -24,7 +24,7 @@ export function AdminWelcome({ onNavigate }: AdminWelcomeProps) {
         // setActivity(activityRes);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
-        setStats({ totalBooks: 0, activeUsers: 0 });
+        setStats({ totalBooks: 0, totalUsers: 0 });
       } finally {
         setLoading(false);
       }
@@ -36,7 +36,7 @@ export function AdminWelcome({ onNavigate }: AdminWelcomeProps) {
 
   const statCards = [
     { title: "Total Books", value: stats.totalBooks, icon: BookOpen, color: "blue" },
-    { title: "Active Users", value: stats.activeUsers, icon: Users, color: "green" }
+    { title: "Toal Users", value: stats.totalUsers, icon: Users, color: "green" }
     // TO:DO more stats
     //{ title: "Books Borrowed", value: stats.borrowedBooks, icon: TrendingUp, color: "orange" },
     //{ title: "Overdue Books", value: stats.overdueBooks, icon: AlertTriangle, color: "red" },
