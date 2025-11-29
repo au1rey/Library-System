@@ -1,26 +1,45 @@
+import { useState, useEffect } from "react";
 import { BookOpen, Plus, Users, TrendingUp, AlertTriangle, FileText, Search } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card";
 import "../styles/AdminWelcome.css";
-
+import { api } from "../../services/api";
 
 interface AdminWelcomeProps {
   onNavigate: (screen: string) => void;
 }
 
 export function AdminWelcome({ onNavigate }: AdminWelcomeProps) {
-  const stats = [
-    { title: "Total Books", value: "2,547", icon: BookOpen, color: "blue" },
-    { title: "Active Users", value: "1,283", icon: Users, color: "green" },
-    { title: "Books Borrowed", value: "847", icon: TrendingUp, color: "orange" },
-    { title: "Overdue Books", value: "23", icon: AlertTriangle, color: "red" },
-  ];
+  const [stats, setStats] = useState<any>(null);
+  const [activity, setActivity] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const recentActivity = [
-    { action: "New book added", book: "The Great Gatsby", time: "2 hours ago" },
-    { action: "Book returned", book: "To Kill a Mockingbird", time: "4 hours ago" },
-    { action: "User registered", book: "John Smith joined", time: "6 hours ago" },
-    { action: "Book borrowed", book: "1984", time: "8 hours ago" },
+  useEffect(() => {
+    async function fetchDashboard(){
+      try {
+        const statsRes = await api.request('/api/admin/dashboard-stats');
+       // const activityRes = await api.request("/api/admin/recent-activity");
+
+        setStats(statsRes);
+        // setActivity(activityRes);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        setStats({ totalBooks: 0, activeUsers: 0 });
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDashboard();
+  }, []);
+        
+  if (loading) { return <div>Loading...</div>; }
+
+  const statCards = [
+    { title: "Total Books", value: stats.totalBooks, icon: BookOpen, color: "blue" },
+    { title: "Active Users", value: stats.activeUsers, icon: Users, color: "green" }
+    // TO:DO more stats
+    //{ title: "Books Borrowed", value: stats.borrowedBooks, icon: TrendingUp, color: "orange" },
+    //{ title: "Overdue Books", value: stats.overdueBooks, icon: AlertTriangle, color: "red" },
   ];
 
   return (
@@ -33,7 +52,7 @@ export function AdminWelcome({ onNavigate }: AdminWelcomeProps) {
 
       {/* Stats Section */}
       <section className="stats-grid">
-        {stats.map((stat, index) => (
+        {statCards.map((stat, index) => (
           <Card key={index} className="stat-card">
             <CardContent>
               <div className="stat-card-content">
@@ -94,15 +113,16 @@ export function AdminWelcome({ onNavigate }: AdminWelcomeProps) {
           <CardDescription>Latest updates and actions in the library system</CardDescription>
         </CardHeader>
         <CardContent>
-          {recentActivity.map((activity, index) => (
+          {/* TO:DO ACTIVITY DISPLAY: No activity displayed for now */}
+          {/* {activity.map((activity, index) => (
             <div key={index} className="activity-row">
-              <div>
-                <p className="activity-action">{activity.action}</p>
-                <p className="activity-detail">{activity.book}</p>
-              </div>
-              <p className="activity-time">{activity.time}</p>
+             <div>
+              <p className="activity-action">{activity.action}</p>
+              <p className="activity-detail">{activity.book}</p>
             </div>
-          ))}
+            <p className="activity-time">{activity.time}</p>
+          </div>
+        ))} */}
         </CardContent>
       </Card>
     </div>

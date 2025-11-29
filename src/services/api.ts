@@ -44,6 +44,7 @@ async function request(path: string, opts: RequestInit = {}) {
  * API methods - Frontend interface to backend endpoints
  ***********************/
 export const api = {
+  request,
   /***********************
    * Sign in user
    * @param email - User's email

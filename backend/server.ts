@@ -15,6 +15,7 @@ import booksRoutes from "./routes/books";
 import userRoutes from "./routes/users";
 import loanRoutes from "./routes/loans";
 import reservationRoutes from "./routes/reservations";
+import adminRoutes from "./routes/adminRoutes";
 
 
 // Load environment variables
@@ -74,6 +75,7 @@ app.use("/api/books", booksRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/loans", loanRoutes);
 app.use("/api/reservations", reservationRoutes);
+app.use("/api/admin", adminRoutes);
 
 // ============================================
 // 7. ERROR HANDLING
