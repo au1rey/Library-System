@@ -9,29 +9,53 @@ import { Router, Request, Response } from "express";
 import db from "../config/database";
 
 const router = Router(); // mini server that handles routes
+//  Returns all copies for a specific book
 
+router.get("/", async (req: Request, res: Response) => {
+  const { bookId } = req.query;
+
+  try {
+    let result;
+
+    if (bookId) {
+      // Get copies for specific book
+      result = await db.query("SELECT * FROM book_copy WHERE book_id = $1", [
+        parseInt(bookId as string),
+      ]);
+    } else {
+      // Get all copies
+      result = await db.query("SELECT * FROM book_copy");
+    }
+
+    res.json(result.rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
 // Handles post requests to loan
 router.post("/loan", async (req: Request, res: Response) => {
-    const { copyId, userId } = req.body;
-    try {
-        const copy = await BookCopy.load(copyId); // load function from BookCopy model, wait for result
-        await copy.loan(userId);
-        res.status(200).json({ message: "Book copy loaned successfully" });
-    } catch (err: any) { // if copy not loaned
-        res.status(400).json({ error: err.message });
-    }
+  const { copyId, userId } = req.body;
+  try {
+    const copy = await BookCopy.load(copyId); // load function from BookCopy model, wait for result
+    await copy.loan(userId);
+    res.status(200).json({ message: "Book copy loaned successfully" });
+  } catch (err: any) {
+    // if copy not loaned
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // Handles post requests to return
 router.post("/return", async (req: Request, res: Response) => {
-    const { copyId } = req.body;
-    try {
-        const copy = await BookCopy.load(copyId); // load function from BookCopy model, wait for result
-        await copy.return();
-        res.status(200).json({ message: "Book copy returned successfully" });
-    } catch (err: any) { // if copy not returned
-        res.status(400).json({ error: err.message });
-    }
+  const { copyId } = req.body;
+  try {
+    const copy = await BookCopy.load(copyId); // load function from BookCopy model, wait for result
+    await copy.return();
+    res.status(200).json({ message: "Book copy returned successfully" });
+  } catch (err: any) {
+    // if copy not returned
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // Handles get requests to check availability to display on frontend

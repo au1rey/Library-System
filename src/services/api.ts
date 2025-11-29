@@ -30,6 +30,12 @@ async function request(path: string, opts: RequestInit = {}) {
   const headers = new Headers(opts.headers as HeadersInit);
   headers.set("Content-Type", "application/json");
 
+  //token if available
+  const token = localStorage.getItem("authToken");
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
   const res = await fetch(`${API_BASE}${path}`, { ...opts, headers });
 
   if (!res.ok) {
@@ -126,4 +132,30 @@ export const api = {
    * @returns Book data
    ***********************/
   getBook: (id: number) => request(`/api/books/${id}`, { method: "GET" }),
+
+  /***********************
+   * Get joined book + copy data
+   * Provides status counts for user search UI
+   ***********************/
+  getBooksWithCopies: () =>
+    request("/api/books/books-with-copies", { method: "GET" }),
+
+  /***********************
+   * Checkout a book for the current user
+   * Automatically grabs the first available copy
+   ***********************/
+  checkoutBook: (bookId: number, userId: number) =>
+    request(`/api/books/${bookId}/checkout`, {
+      method: "POST",
+      body: JSON.stringify({ userId }),
+    }),
+
+  /***********************
+   * Reserve a book for later pickup
+   ***********************/
+  reserveBook: (bookId: number, userId: number) =>
+    request("/api/reservations", {
+      method: "POST",
+      body: JSON.stringify({ bookId, userId }),
+    }),
 };

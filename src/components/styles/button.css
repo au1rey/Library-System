@@ -102,3 +102,9 @@
   opacity: 0.5;
   pointer-events: none;
 }
+.button:focus,
+.button:focus-visible,
+.button:active {
+  outline: none;
+  box-shadow: none;
+}

@@ -68,6 +68,7 @@
 .signin-link-section {
   margin-top: 1.5rem; /* mt-6 */
   text-align: center;
+  padding-bottom: 1rem;
 }
 
 .signin-link-section p {
@@ -95,7 +96,7 @@
 /* Demo instructions box */
 .signin-demo-box {
   margin-top: 1.5rem; /* mt-6 */
-  padding: 1rem; /* p-4 */
+  padding: 2rem; /* p-4 */
   background-color: #f3f4f6; /* bg-muted */
   border-radius: 0.5rem; /* rounded-lg */
 }
@@ -104,6 +105,7 @@
   margin: 0;
   color: #111827;
   font-size: 0.9rem;
+  padding-bottom: 0.25rem;
 }
 
 .signin-demo-box strong {

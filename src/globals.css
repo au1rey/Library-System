@@ -61,40 +61,116 @@ body {
 }
 
 /* Typography */
-h1 { font-size: 2rem; font-weight: var(--font-weight-medium); }
-h2 { font-size: 1.75rem; font-weight: var(--font-weight-medium); }
-h3 { font-size: 1.5rem; font-weight: var(--font-weight-medium); }
-h4 { font-size: 1.25rem; font-weight: var(--font-weight-medium); }
-p, input, button, label { font-size: 1rem; font-weight: var(--font-weight-normal); }
+h1 {
+  font-size: 2rem;
+  font-weight: var(--font-weight-medium);
+}
+h2 {
+  font-size: 1.75rem;
+  font-weight: var(--font-weight-medium);
+}
+h3 {
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-medium);
+}
+h4 {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-medium);
+}
+p,
+input,
+button,
+label {
+  font-size: 1rem;
+  font-weight: var(--font-weight-normal);
+}
 
 /* Inputs and buttons */
-input, button { font-family: inherit; }
+input,
+button {
+  font-family: inherit;
+}
 
 /* Utility classes */
-.min-h-screen { min-height: 100vh; }
+.min-h-screen {
+  min-height: 100vh;
+}
 
 /* Background colors */
-.bg-background { background-color: var(--background); }
-.bg-card { background-color: var(--card); }
-.bg-popover { background-color: var(--popover); }
-.bg-primary { background-color: var(--primary); }
-.bg-secondary { background-color: var(--secondary); }
-.bg-muted { background-color: var(--muted); }
-.bg-accent { background-color: var(--accent); }
-.bg-destructive { background-color: var(--destructive); }
+.bg-background {
+  background-color: var(--background);
+}
+.bg-card {
+  background-color: var(--card);
+}
+.bg-popover {
+  background-color: var(--popover);
+}
+.bg-primary {
+  background-color: var(--primary);
+}
+.bg-secondary {
+  background-color: var(--secondary);
+}
+.bg-muted {
+  background-color: var(--muted);
+}
+.bg-accent {
+  background-color: var(--accent);
+}
+.bg-destructive {
+  background-color: var(--destructive);
+}
 
 /* Text colors */
-.text-foreground { color: var(--foreground); }
-.text-card { color: var(--card-foreground); }
-.text-popover { color: var(--popover-foreground); }
-.text-primary { color: var(--primary-foreground); }
-.text-secondary { color: var(--secondary-foreground); }
-.text-muted { color: var(--muted-foreground); }
-.text-accent { color: var(--accent-foreground); }
-.text-destructive { color: var(--destructive-foreground); }
+.text-foreground {
+  color: var(--foreground);
+}
+.text-card {
+  color: var(--card-foreground);
+}
+.text-popover {
+  color: var(--popover-foreground);
+}
+.text-primary {
+  color: var(--primary-foreground);
+}
+.text-secondary {
+  color: var(--secondary-foreground);
+}
+.text-muted {
+  color: var(--muted-foreground);
+}
+.text-accent {
+  color: var(--accent-foreground);
+}
+.text-destructive {
+  color: var(--destructive-foreground);
+}
 
 .app-container {
   min-height: 100vh;
   background-color: #f5f5f5;
 }
 
+/* FIX RADIX SELECT BLUE HIGHLIGHT */
+.SelectTrigger:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Removes blue highlight on selected item */
+.SelectItem[data-highlighted],
+.SelectItem:focus,
+.SelectItem:active {
+  background-color: #f3f4f6 !important; /* light gray */
+  color: #111827 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Removes the blue border around the dropdown itself */
+.SelectContent:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
