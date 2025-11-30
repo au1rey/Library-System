@@ -1,79 +1,202 @@
 /***********************
- * Admin Welcome Component Styles
+ * Admin Welcome Page Styles
  ***********************/
+
+/* Main container */
 .admin-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
-  font-family: Arial, sans-serif;
+  padding: 2rem 1rem;
 }
 
+/* Header */
 .admin-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .admin-header h1 {
-  margin-bottom: 0.5rem;
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #111827;
 }
 
+.admin-header p {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Stat Cards */
+.stat-card {
+  transition: box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card-content {
+  padding: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .stat-title {
-  color: #666;
-  font-size: 0.9rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 500;
 }
 
 .stat-value {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #111827;
 }
 
 .stat-icon {
-  width: 32px;
-  height: 32px;
+  height: 2.5rem;
+  width: 2.5rem;
 }
 
-.stat-icon.blue { color: #2563eb; }
-.stat-icon.green { color: #16a34a; }
-.stat-icon.orange { color: #f97316; }
-.stat-icon.red { color: #dc2626; }
+.stat-icon.blue {
+  color: #2563eb;
+}
 
+.stat-icon.green {
+  color: #16a34a;
+}
+
+.stat-icon.orange {
+  color: #ea580c;
+}
+
+.stat-icon.red {
+  color: #dc2626;
+}
+
+/* Actions Grid */
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
+@media (min-width: 768px) {
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .actions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Action Cards */
 .action-card {
   cursor: pointer;
-  transition: box-shadow 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .action-card:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
 }
 
+.action-card [class*="CardHeader"],
+.action-card [class*="card-header"] {
+  padding: 2rem 2rem 0.1em 2rem;
+}
+
+.action-card [class*="CardTitle"],
+.action-card [class*="card-title"] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.action-card [class*="CardDescription"],
+.action-card [class*="card-description"] {
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* ========================================
+ * Reduced padding
+ * ======================================== */
+
+/* Reduce padding on action card buttons */
+.action-card button {
+  padding: 5px 16px !important;
+  height: 36px !important;
+  font-size: 0.875rem;
+}
+
+/* Add proper spacing in CardContent */
+.action-card [class*="CardContent"],
+.action-card [class*="card-content"] {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+/* Ensure buttons don't touch edges */
+.action-card button {
+  margin-top: 0.5rem;
+}
+
+/* Recent Activity */
 .recent-activity {
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
+.recent-activity [class*="CardHeader"],
+.recent-activity [class*="card-header"] {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.recent-activity [class*="CardContent"],
+.recent-activity [class*="card-content"] {
+  padding: 0.75rem;
+}
+
+/* Activity Row */
 .activity-row {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid #ddd;
-  padding: 0.75rem 0;
+  align-items: start;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 .activity-row:last-child {
@@ -82,10 +205,53 @@
 
 .activity-action {
   font-weight: 500;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
 }
 
-.activity-detail,
+.activity-detail {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
 .activity-time {
-  color: #666;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  margin: 0;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  color: #9ca3af;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .admin-header h1 {
+    font-size: 0.75rem;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+  }
+
+  .stat-icon {
+    height: 2rem;
+    width: 2rem;
+  }
+}
+/* Reduce padding on action card buttons */
+.action-card button {
+  padding: 6px 16px !important;
+  height: 36px !important;
+  font-size: 0.875rem;
 }
