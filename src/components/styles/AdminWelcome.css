@@ -1,5 +1,6 @@
 /***********************
  * Admin Welcome Page Styles
+ *
  ***********************/
 
 /* Main container */
@@ -11,7 +12,7 @@
 
 /* Header */
 .admin-header {
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .admin-header h1 {
@@ -31,8 +32,8 @@
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 @media (min-width: 768px) {
@@ -47,39 +48,54 @@
   }
 }
 
-/* Stat Cards */
+/* ========================================
+ * STAT CARDS 
+ * ======================================== */
+
 .stat-card {
-  transition: box-shadow 0.2s ease;
+  transition: all 0.2s ease;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
 }
 
 .stat-card:hover {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
+/* Reduced padding significantly */
 .stat-card-content {
-  padding: 1.5rem;
+  padding: 1rem 1rem !important;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
 
+/* Title styling - smaller and tighter */
 .stat-title {
   color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0 0 0.5rem 0;
-  font-weight: 500;
+  font-size: 0.8rem;
+  margin: 0 0 0.35rem 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
+/* Value styling - BIGGER and BOLDER */
 .stat-value {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 2.25rem;
+  font-weight: 800;
   margin: 0;
   color: #111827;
+  line-height: 1;
 }
 
+/* Icon - slightly smaller */
 .stat-icon {
-  height: 2.5rem;
-  width: 2.5rem;
+  height: 2.25rem;
+  width: 2.25rem;
+  flex-shrink: 0;
 }
 
 .stat-icon.blue {
@@ -102,8 +118,8 @@
 .actions-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 @media (min-width: 768px) {
@@ -132,7 +148,7 @@
 
 .action-card [class*="CardHeader"],
 .action-card [class*="card-header"] {
-  padding: 2rem 2rem 0.1em 2rem;
+  padding: 1.5rem 1.5rem 0.75rem 1.5rem;
 }
 
 .action-card [class*="CardTitle"],
@@ -153,12 +169,12 @@
 }
 
 /* ========================================
- * Reduced padding
+ * BUTTON STYLES
  * ======================================== */
 
 /* Reduce padding on action card buttons */
 .action-card button {
-  padding: 5px 16px !important;
+  padding: 6px 16px !important;
   height: 36px !important;
   font-size: 0.875rem;
 }
@@ -176,18 +192,18 @@
 
 /* Recent Activity */
 .recent-activity {
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 
 .recent-activity [class*="CardHeader"],
 .recent-activity [class*="card-header"] {
-  padding: 0.75rem;
+  padding: 1.5rem;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .recent-activity [class*="CardContent"],
 .recent-activity [class*="card-content"] {
-  padding: 0.75rem;
+  padding: 1.5rem;
 }
 
 /* Activity Row */
@@ -225,7 +241,7 @@
 /* Empty state */
 .empty-state {
   text-align: center;
-  padding: 1.5rem 1rem;
+  padding: 2rem 1rem;
   color: #9ca3af;
 }
 
@@ -234,24 +250,25 @@
   font-size: 0.875rem;
 }
 
-/* Responsive adjustments */
 @media (max-width: 640px) {
   .admin-header h1 {
-    font-size: 0.75rem;
+    font-size: 1.5rem;
+  }
+
+  .stat-card-content {
+    padding: 0.875rem 1rem !important;
   }
 
   .stat-value {
-    font-size: 1.75rem;
+    font-size: 2rem;
   }
 
   .stat-icon {
     height: 2rem;
     width: 2rem;
   }
-}
-/* Reduce padding on action card buttons */
-.action-card button {
-  padding: 6px 16px !important;
-  height: 36px !important;
-  font-size: 0.875rem;
+
+  .stat-title {
+    font-size: 0.75rem;
+  }
 }
