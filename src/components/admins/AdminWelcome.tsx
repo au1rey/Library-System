@@ -1,10 +1,24 @@
 import { useState, useEffect } from "react";
-import { BookOpen, Plus, Users, TrendingUp, AlertTriangle, FileText, Search } from "lucide-react";
+import {
+  BookOpen,
+  Plus,
+  Users,
+  TrendingUp,
+  AlertTriangle,
+  FileText,
+  Search,
+} from "lucide-react";
 import { Button } from "../ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "../ui/card";
 import "../styles/AdminWelcome.css";
 import { api } from "../../services/api";
-
+import "../styles/AdminAddBook.css";
 interface AdminWelcomeProps {
   onNavigate: (screen: string) => void;
 }
@@ -15,10 +29,10 @@ export function AdminWelcome({ onNavigate }: AdminWelcomeProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchDashboard(){
+    async function fetchDashboard() {
       try {
-        const statsRes = await api.request('/api/admin/dashboard-stats');
-       // const activityRes = await api.request("/api/admin/recent-activity");
+        const statsRes = await api.request("/api/admin/dashboard-stats");
+        // const activityRes = await api.request("/api/admin/recent-activity");
 
         setStats(statsRes);
         // setActivity(activityRes);
@@ -31,12 +45,24 @@ export function AdminWelcome({ onNavigate }: AdminWelcomeProps) {
     }
     fetchDashboard();
   }, []);
-        
-  if (loading) { return <div>Loading...</div>; }
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const statCards = [
-    { title: "Total Books", value: stats.totalBooks, icon: BookOpen, color: "blue" },
-    { title: "Toal Users", value: stats.totalUsers, icon: Users, color: "green" }
+    {
+      title: "Total Books",
+      value: stats.totalBooks,
+      icon: BookOpen,
+      color: "blue",
+    },
+    {
+      title: "Toal Users",
+      value: stats.totalUsers,
+      icon: Users,
+      color: "green",
+    },
     // TO:DO more stats
     //{ title: "Books Borrowed", value: stats.borrowedBooks, icon: TrendingUp, color: "orange" },
     //{ title: "Overdue Books", value: stats.overdueBooks, icon: AlertTriangle, color: "red" },
@@ -69,19 +95,27 @@ export function AdminWelcome({ onNavigate }: AdminWelcomeProps) {
 
       {/* Quick Actions */}
       <section className="actions-grid">
-        <Card className="action-card" onClick={() => onNavigate("admin-add-book")}>
+        <Card
+          className="action-card"
+          onClick={() => onNavigate("admin-add-book")}
+        >
           <CardHeader>
             <CardTitle>
               <Plus /> Add New Book
             </CardTitle>
-            <CardDescription>Quickly add books to the library catalog</CardDescription>
+            <CardDescription>
+              Quickly add books to the library catalog
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Button>Add Book</Button>
           </CardContent>
         </Card>
 
-        <Card className="action-card" onClick={() => onNavigate("admin-search")}>
+        <Card
+          className="action-card"
+          onClick={() => onNavigate("admin-search")}
+        >
           <CardHeader>
             <CardTitle>
               <Search /> Search & Manage
@@ -98,7 +132,9 @@ export function AdminWelcome({ onNavigate }: AdminWelcomeProps) {
             <CardTitle>
               <FileText /> Generate Reports
             </CardTitle>
-            <CardDescription>Export library analytics and reports</CardDescription>
+            <CardDescription>
+              Export library analytics and reports
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Button variant="outline">View Reports</Button>
@@ -110,7 +146,9 @@ export function AdminWelcome({ onNavigate }: AdminWelcomeProps) {
       <Card className="recent-activity">
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Latest updates and actions in the library system</CardDescription>
+          <CardDescription>
+            Latest updates and actions in the library system
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {/* TO:DO ACTIVITY DISPLAY: No activity displayed for now */}
