@@ -9,6 +9,7 @@ import {
 } from "../ui/select";
 import "../styles/usersearch.css";
 import { api } from "../../services/api";
+import { ViewBookModal } from "../modals/ViewBookModal";
 
 /***********************
  * Local Types
@@ -25,6 +26,7 @@ type SearchBook = {
   publishYear?: number;
   pages?: number;
   isbn?: string;
+  genre: string;
 };
 
 type ActionFeedback = {
@@ -52,6 +54,8 @@ export function UserSearch() {
     null
   );
   const [pendingActionId, setPendingActionId] = useState<number | null>(null);
+  const [selectedBook, setSelectedBook] = useState<SearchBook | null>(null);
+  const [loanFeedback, setLoanFeedback] = useState<string | null>(null);
 
   /***********************
    * Hydrate session user from localStorage
@@ -75,20 +79,23 @@ export function UserSearch() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await api.getBooks();
+      const data = await fetch(
+        "http://localhost:3000/api/books/books-with-copies"
+      ).then((res) => res.json());
       const mapped: SearchBook[] = (data || []).map((book: any) => ({
         id: book.book_id,
         title: book.title,
         author: book.author,
         category: book.genre || "Uncategorized",
-        description:
-          book.description || "No description available for this title.",
+        description: book.description || "No description available.",
         availableCopies: book.available_copies ?? 0,
         totalCopies: book.total_copies ?? 0,
-        location: book.shelf_location || "See librarian for location",
-        publishYear: book.publication_year ?? undefined,
+        location: book.location || "See librarian for location",
+        publishYear: book.publication_year ?? null,
         pages: book.pages ?? undefined,
         isbn: book.isbn ?? undefined,
+        publisher: book.publisher ?? null,
+        genre: book.genre || "Uncategorized",
       }));
 
       mapped.sort((a, b) => a.title.localeCompare(b.title));
@@ -111,7 +118,7 @@ export function UserSearch() {
    * Derived Lists
    ***********************/
   const categories = useMemo(() => {
-    const unique = Array.from(new Set(books.map((book) => book.category)));
+    const unique = Array.from(new Set(books.map((book) => book.genre)));
     return ["all", ...unique];
   }, [books]);
 
@@ -122,7 +129,7 @@ export function UserSearch() {
       book.author.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCategory =
-      categoryFilter === "all" || book.category === categoryFilter;
+      categoryFilter === "all" || book.genre === categoryFilter;
 
     const matchesAvailability =
       availabilityFilter === "all" ||
@@ -185,20 +192,47 @@ export function UserSearch() {
       return;
     }
 
+    const book = books.find((b) => b.id === bookId);
+    if (!book) return;
+
     setPendingActionId(bookId);
     setActionFeedback(null);
 
+    // Case 1: no copies → reserve instead of error
+    if (book.availableCopies === 0) {
+      try {
+        await api.reserveBook(bookId, currentUser.id);
+        setActionFeedback({
+          type: "success",
+          message:
+            "No copies are available right now, but you've been added to the reservation list.",
+        });
+      } catch (err) {
+        setActionFeedback({
+          type: "error",
+          message:
+            err instanceof Error
+              ? err.message
+              : "Unable to place a reservation. Please try again.",
+        });
+      } finally {
+        setPendingActionId(null);
+      }
+      return;
+    }
+
+    // Case 2: copies available → normal checkout
     try {
       await api.checkoutBook(bookId, currentUser.id);
       setBooks((prev) =>
-        prev.map((book) =>
-          book.id === bookId
+        prev.map((b) =>
+          b.id === bookId
             ? {
-                ...book,
+                ...b,
                 availableCopies:
-                  book.availableCopies > 0 ? book.availableCopies - 1 : 0,
+                  b.availableCopies > 0 ? b.availableCopies - 1 : 0,
               }
-            : book
+            : b
         )
       );
       setActionFeedback({
@@ -220,6 +254,45 @@ export function UserSearch() {
 
   const handleAddToFavorites = (bookId: number) => {
     alert(`Added book ${bookId} to favorites! (Coming soon)`);
+  };
+  // Loan book handler with auto-reservation
+  const handleLoanBook = async (bookId: number) => {
+    const book = books.find((b) => b.id === bookId);
+    if (!book) return;
+
+    // Clear previous message
+    setLoanFeedback(null);
+
+    // Case 1: No copies → auto reservation
+    if (book.availableCopies === 0) {
+      try {
+        await api.reserveBook(bookId, currentUser!.id);
+        setLoanFeedback(
+          "No copies available — you’ve been added to the reservation list."
+        );
+      } catch (err) {
+        setLoanFeedback("Unable to place reservation. Please try again.");
+      }
+      return;
+    }
+
+    // Case 2: Copies available → checkout
+    try {
+      await api.checkoutBook(bookId, currentUser!.id);
+
+      // Update UI locally
+      setBooks((prev) =>
+        prev.map((b) =>
+          b.id === bookId
+            ? { ...b, availableCopies: Math.max(0, b.availableCopies - 1) }
+            : b
+        )
+      );
+
+      setLoanFeedback("Checkout successful! Enjoy your book.");
+    } catch (err) {
+      setLoanFeedback("Unable to check out the book. Please try again.");
+    }
   };
 
   const isActionPending = (bookId: number) => pendingActionId === bookId;
@@ -359,7 +432,7 @@ export function UserSearch() {
                   </div>
 
                   <div className="book-tags">
-                    <span className="tag">{book.category}</span>
+                    <span className="tag">{book.genre}</span>
                     <span
                       className={`tag ${
                         isAvailable ? "available" : "borrowed"
@@ -390,23 +463,24 @@ export function UserSearch() {
                   </div>
 
                   <div className="book-actions">
+                    {/* Checkout Book */}
                     <button
                       className="reserve-btn"
-                      onClick={() => handleReserve(book.id)}
+                      onClick={() => handleCheckout(book.id)}
                       disabled={isPending}
                     >
-                      {isPending ? "Processing..." : "Reserve Book"}
+                      {isPending ? "Processing..." : "Checkout Book"}
                     </button>
+
+                    {/* View Book  */}
                     <button
                       className="details-btn"
-                      onClick={() => handleCheckout(book.id)}
-                      disabled={!isAvailable || isPending}
+                      onClick={() => {
+                        setLoanFeedback(null);
+                        setSelectedBook(book);
+                      }}
                     >
-                      {isAvailable
-                        ? isPending
-                          ? "Processing..."
-                          : "Checkout"
-                        : "Unavailable"}
+                      View Book
                     </button>
                   </div>
                 </div>
@@ -422,6 +496,15 @@ export function UserSearch() {
             </div>
           )}
         </>
+      )}
+      {selectedBook && (
+        <ViewBookModal
+          book={selectedBook}
+          mode="user"
+          onClose={() => setSelectedBook(null)}
+          onLoan={handleLoanBook}
+          loanFeedback={loanFeedback}
+        />
       )}
     </div>
   );
