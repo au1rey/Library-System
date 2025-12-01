@@ -81,6 +81,10 @@ router.get("/books-with-copies", async (req, res) => {
         b.isbn,
         b.genre,
         b.shelf_location AS location,
+        b.description,
+        b.publisher,
+        b.pages,
+        b.publication_year,
         COUNT(bc.copy_id) AS total_copies,
         SUM(CASE WHEN bc.status='available' THEN 1 ELSE 0 END) AS available_copies,
         SUM(CASE WHEN bc.status='loaned' THEN 1 ELSE 0 END) AS borrowed,
@@ -136,7 +140,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
 /***********************
  * DELETE /books/:id - deletes book and its copies
-************************/
+ ************************/
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

@@ -10,4 +10,8 @@ export type BookWithCopies = {
   available_copies: number;
   borrowed: number;
   status: string;
+  description?: string;
+  publisher?: string;
+  pages?: number;
+  publication_year?: number;
 };
