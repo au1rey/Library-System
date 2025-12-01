@@ -23,7 +23,7 @@ type SearchBook = {
   availableCopies: number;
   totalCopies: number;
   location?: string;
-  publishYear?: number;
+  publication_year?: number;
   pages?: number;
   isbn?: string;
   genre: string;
@@ -91,7 +91,7 @@ export function UserSearch() {
         availableCopies: book.available_copies ?? 0,
         totalCopies: book.total_copies ?? 0,
         location: book.location || "See librarian for location",
-        publishYear: book.publication_year ?? null,
+        publication_year: book.publication_year ?? null,
         pages: book.pages ?? undefined,
         isbn: book.isbn ?? undefined,
         publisher: book.publisher ?? null,
