@@ -1,7 +1,7 @@
 /***********************
  * books.ts - Books Routes
  * Defines routes for managing books
- * Adding and fetching books
+ * Adding, fetching, updating, and deleting books
  ***********************/
 import { Router, Request, Response } from "express";
 import { Book } from "../models/Books";
@@ -63,6 +63,79 @@ router.post("/", async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     console.error("Error adding book:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/***********************
+ * PUT /books/:id - Update an existing book
+ ***********************/
+router.put("/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const {
+    title,
+    author,
+    isbn,
+    publisher,
+    publication_year,
+    genre,
+    description,
+    total_copies,
+    location,
+    pages,
+  } = req.body;
+
+  // Validate required fields
+  if (!title || !author) {
+    return res.status(400).json({ error: "Title and author are required" });
+  }
+  if (!total_copies || total_copies < 1) {
+    return res
+      .status(400)
+      .json({ error: "Number of copies must be at least 1" });
+  }
+
+  try {
+    // Update book with all fields
+    const result = await db.query(
+      `UPDATE books 
+       SET title = $1, 
+           author = $2, 
+           isbn = $3, 
+           publisher = $4, 
+           publication_year = $5, 
+           genre = $6, 
+           description = $7, 
+           total_copies = $8, 
+           shelf_location = $9, 
+           pages = $10
+       WHERE book_id = $11 
+       RETURNING *`,
+      [
+        title,
+        author,
+        isbn || null,
+        publisher || null,
+        publication_year ? parseInt(publication_year) : null,
+        genre || null,
+        description || null,
+        parseInt(total_copies),
+        location || null,
+        pages ? parseInt(pages) : null,
+        id,
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Book not found" });
+    }
+
+    res.json({
+      message: "Book updated successfully",
+      book: result.rows[0],
+    });
+  } catch (err: any) {
+    console.error("Error updating book:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -144,7 +217,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    console.log("DELETE route hit", req.params); // <-- add this
+    console.log("DELETE route hit", req.params);
     await db.query("DELETE FROM books WHERE book_id = $1", [id]);
     res.json({ message: "Book deleted successfully" });
   } catch (err: any) {

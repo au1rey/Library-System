@@ -28,12 +28,14 @@ import {
 import { Search, Edit, Trash2, Eye, BookOpen } from "lucide-react";
 import "../styles/AdminSearch.css";
 import { ViewBookModal } from "../modals/ViewBookModal";
+import { EditBookModal } from "../modals/EditBookModal";
 
 export function AdminSearch() {
   const [books, setBooks] = useState<BookWithCopies[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedBook, setSelectedBook] = useState<BookWithCopies | null>(null);
+  const [editingBook, setEditingBook] = useState<BookWithCopies | null>(null);
 
   // Loading and error states
   const [isLoading, setIsLoading] = useState(true);
@@ -44,11 +46,11 @@ export function AdminSearch() {
       try {
         const res = await fetch(
           "http://localhost:3000/api/books/books-with-copies"
-        ); // backend endpoint to joined data
+        );
         if (!res.ok) throw new Error("Failed to fetch books");
         const data = await res.json();
         console.log("Fetched data:", data);
-        setBooks(data); // Store books in state
+        setBooks(data);
       } catch (err: any) {
         console.error("Error fetching books:", err);
         setError(err.message);
@@ -116,8 +118,21 @@ export function AdminSearch() {
       alert("Error deleting book");
     }
   }
+
   function handleViewBook(book: BookWithCopies) {
     setSelectedBook(book);
+  }
+
+  function handleEditBook(book: BookWithCopies) {
+    setEditingBook(book);
+  }
+
+  function handleSaveEdit(updatedBook: BookWithCopies) {
+    // Update the book in the local state
+    setBooks(
+      books.map((b) => (b.book_id === updatedBook.book_id ? updatedBook : b))
+    );
+    setEditingBook(null);
   }
 
   return (
@@ -213,7 +228,7 @@ export function AdminSearch() {
                       <Button onClick={() => handleViewBook(book)}>
                         <Eye size={16} />
                       </Button>
-                      <Button>
+                      <Button onClick={() => handleEditBook(book)}>
                         <Edit size={16} />
                       </Button>
                       <Button onClick={() => handleDelete(book.book_id)}>
@@ -236,12 +251,22 @@ export function AdminSearch() {
         </Button>
         <Button>Bulk Edit</Button>
       </div>
+
       {/* VIEW BOOK MODAL */}
       {selectedBook && (
         <ViewBookModal
           book={selectedBook}
           mode="admin"
           onClose={() => setSelectedBook(null)}
+        />
+      )}
+
+      {/* EDIT BOOK MODAL */}
+      {editingBook && (
+        <EditBookModal
+          book={editingBook}
+          onClose={() => setEditingBook(null)}
+          onSave={handleSaveEdit}
         />
       )}
     </div>
