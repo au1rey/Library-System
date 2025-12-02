@@ -359,3 +359,19 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* Drag and drop styles */
+.upload-box.dragging {
+  border-color: #2563eb;
+  background-color: #dbeafe;
+  border-width: 3px;
+  transform: scale(1.02);
+}
+
+.upload-box.dragging .upload-icon {
+  color: #2563eb;
+}
+
+.upload-box.dragging p {
+  color: #1e40af;
+  font-weight: 500;
+}
