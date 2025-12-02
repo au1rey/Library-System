@@ -96,7 +96,18 @@ router.put("/:id", async (req: Request, res: Response) => {
   }
 
   try {
-    // Update book with all fields
+    // Start a transaction
+    await db.query("BEGIN");
+
+    // Get current copy count
+    const currentCopiesResult = await db.query(
+      `SELECT COUNT(*) as count FROM book_copy WHERE book_id = $1`,
+      [id]
+    );
+    const currentCopyCount = parseInt(currentCopiesResult.rows[0].count);
+    const newCopyCount = parseInt(total_copies);
+
+    // Update book metadata
     await db.query(
       `UPDATE books 
        SET title = $1, 
@@ -109,8 +120,7 @@ router.put("/:id", async (req: Request, res: Response) => {
            total_copies = $8, 
            shelf_location = $9, 
            pages = $10
-       WHERE book_id = $11 
-       RETURNING *`,
+       WHERE book_id = $11`,
       [
         title,
         author,
@@ -119,12 +129,57 @@ router.put("/:id", async (req: Request, res: Response) => {
         publication_year ? parseInt(publication_year) : null,
         genre || null,
         description || null,
-        parseInt(total_copies),
+        newCopyCount,
         location || null,
         pages ? parseInt(pages) : null,
         id,
       ]
     );
+
+    // Handle copy count changes
+    if (newCopyCount > currentCopyCount) {
+      // Add new copies
+      const copiesToAdd = newCopyCount - currentCopyCount;
+      for (let i = 0; i < copiesToAdd; i++) {
+        await db.query(
+          `INSERT INTO book_copy (book_id, status) VALUES ($1, 'available')`,
+          [id]
+        );
+      }
+    } else if (newCopyCount < currentCopyCount) {
+      // Remove excess available copies
+      const copiesToRemove = currentCopyCount - newCopyCount;
+
+      // Only remove available copies (not loaned ones)
+      const availableCopies = await db.query(
+        `SELECT copy_id FROM book_copy 
+         WHERE book_id = $1 AND status = 'available' 
+         ORDER BY copy_id 
+         LIMIT $2`,
+        [id, copiesToRemove]
+      );
+
+      if (availableCopies.rows.length < copiesToRemove) {
+        await db.query("ROLLBACK");
+        return res.status(400).json({
+          error: `Cannot reduce copies: only ${
+            availableCopies.rows.length
+          } available copies exist (${
+            currentCopyCount - availableCopies.rows.length
+          } are currently loaned)`,
+        });
+      }
+
+      // Delete the available copies
+      for (const copy of availableCopies.rows) {
+        await db.query(`DELETE FROM book_copy WHERE copy_id = $1`, [
+          copy.copy_id,
+        ]);
+      }
+    }
+
+    // Commit the transaction
+    await db.query("COMMIT");
 
     // Fetch the updated book with all computed fields (matching books-with-copies format)
     const result = await db.query(

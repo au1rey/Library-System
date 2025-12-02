@@ -220,13 +220,14 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
                   <div className="form-group">
                     <Label htmlFor="genre">Category *</Label>
                     <Select
+                      key={`genre-${book.book_id}`}
                       value={formData.genre}
                       onValueChange={(value) =>
                         handleInputChange("genre", value)
                       }
                       disabled={loading}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id="genre">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
