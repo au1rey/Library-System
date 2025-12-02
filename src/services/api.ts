@@ -158,4 +158,65 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ bookId, userId }),
     }),
+
+  /***********************
+   * Add new book with optional cover image
+   * Sends FormData instead of JSON to support file upload
+   ***********************/
+  addBookWithImage: async (
+    bookData: {
+      title: string;
+      author: string;
+      isbn?: string;
+      publisher?: string;
+      publishYear?: string;
+      category?: string;
+      description?: string;
+      copies: string;
+      location?: string;
+      pages?: string;
+    },
+    coverImage?: File | null
+  ) => {
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append("title", bookData.title);
+    formData.append("author", bookData.author);
+    if (bookData.isbn) formData.append("isbn", bookData.isbn);
+    if (bookData.publisher) formData.append("publisher", bookData.publisher);
+    if (bookData.publishYear)
+      formData.append("publishYear", bookData.publishYear);
+    if (bookData.category) formData.append("category", bookData.category);
+    if (bookData.description)
+      formData.append("description", bookData.description);
+    formData.append("copies", bookData.copies);
+    if (bookData.location) formData.append("location", bookData.location);
+    if (bookData.pages) formData.append("pages", bookData.pages);
+
+    // Append cover image if provided
+    if (coverImage) {
+      formData.append("coverImage", coverImage);
+    }
+
+    // Get token
+    const token = localStorage.getItem("authToken");
+    const headers: HeadersInit = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    // Send FormData (don't set Content-Type - browser sets it with boundary)
+    const res = await fetch(`${API_BASE}/api/books`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error(err.error || res.statusText);
+    }
+
+    return res.json();
+  },
 };

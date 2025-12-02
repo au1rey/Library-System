@@ -316,3 +316,46 @@
   background-color: #f1f1f1 !important;
   color: #111827 !important;
 }
+/* Image preview styles */
+.image-preview-container {
+  position: relative;
+  display: inline-block;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  background: white;
+}
+
+.image-preview {
+  max-width: 200px;
+  max-height: 300px;
+  border-radius: 4px;
+  display: block;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: 500;
+}
+
+.remove-image-btn:hover {
+  background: #dc2626;
+}
+
+.remove-image-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

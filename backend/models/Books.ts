@@ -16,7 +16,7 @@ export interface Book {
   available_copies: number;
   shelf_location?: string;
   pages?: number;
-  cover_image_url?: string;
+  cover_url?: string;
   created_at?: Date;
   updated_at?: Date;
 }

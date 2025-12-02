@@ -6,66 +6,125 @@
 import { Router, Request, Response } from "express";
 import { Book } from "../models/Books";
 import db from "../config/database";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 const router = Router();
 
+// Configure Multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "../uploads");
+    // Create uploads directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    // Generate unique filename: timestamp-randomnumber-originalname
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+// File filter - only accept JPG/PNG
+const fileFilter = (
+  req: Express.Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only JPG and PNG images are allowed"));
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+});
 // POST /books - Add a new book
 // Accepts all book fields from admin form
-router.post("/", async (req: Request, res: Response) => {
-  const {
-    title,
-    author,
-    isbn,
-    publisher,
-    publishYear,
-    category,
-    description,
-    copies,
-    location,
-    pages,
-  } = req.body;
+router.post(
+  "/",
+  upload.single("coverImage"),
+  async (req: Request, res: Response) => {
+    const {
+      title,
+      author,
+      isbn,
+      publisher,
+      publishYear,
+      category,
+      description,
+      copies,
+      location,
+      pages,
+    } = req.body;
 
-  // Validate required fields
-  if (!title || !author) {
-    return res.status(400).json({ error: "Title and author are required" });
-  }
-  if (!copies || copies < 1) {
-    return res
-      .status(400)
-      .json({ error: "Number of copies must be at least 1" });
-  }
-  try {
-    // Insert book with all fields
-    const result = await db.query(
-      `INSERT INTO books 
+    // Validate required fields
+    if (!title || !author) {
+      return res.status(400).json({ error: "Title and author are required" });
+    }
+    if (!copies || copies < 1) {
+      return res
+        .status(400)
+        .json({ error: "Number of copies must be at least 1" });
+    }
+    try {
+      // Get cover image URL if file was uploaded
+      let coverImageUrl: string | null = null;
+      if (req.file) {
+        // Store relative path (frontend will prepend API_BASE)
+        coverImageUrl = `/uploads/${req.file.filename}`;
+      }
+      // Insert book with all fields
+      const result = await db.query(
+        `INSERT INTO books 
        (title, author, isbn, publisher, publication_year, genre, description, 
-        total_copies, available_copies, shelf_location, pages) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
+        total_copies, available_copies, shelf_location, pages, cover_url) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) 
        RETURNING *`,
-      [
-        title,
-        author,
-        isbn || null,
-        publisher || null,
-        publishYear ? parseInt(publishYear) : null,
-        category || null,
-        description || null,
-        parseInt(copies),
-        parseInt(copies), // available_copies starts same as total_copies
-        location || null,
-        pages ? parseInt(pages) : null,
-      ]
-    );
+        [
+          title,
+          author,
+          isbn || null,
+          publisher || null,
+          publishYear ? parseInt(publishYear) : null,
+          category || null,
+          description || null,
+          parseInt(copies),
+          parseInt(copies), // available_copies starts same as total_copies
+          location || null,
+          pages ? parseInt(pages) : null,
+          coverImageUrl,
+        ]
+      );
 
-    res.status(201).json({
-      message: "Book added successfully",
-      book: result.rows[0],
-    });
-  } catch (err: any) {
-    console.error("Error adding book:", err);
-    res.status(500).json({ error: err.message });
+      res.status(201).json({
+        message: "Book added successfully",
+        book: result.rows[0],
+      });
+    } catch (err: any) {
+      console.error("Error adding book:", err);
+      // Clean up uploaded file if database insert fails
+      if (req.file) {
+        fs.unlink(req.file.path, (unlinkErr) => {
+          if (unlinkErr) console.error("Error deleting file:", unlinkErr);
+        });
+      }
+
+      res.status(500).json({ error: err.message });
+    }
   }
-});
+);
 
 /***********************
  * PUT /books/:id - Update an existing book

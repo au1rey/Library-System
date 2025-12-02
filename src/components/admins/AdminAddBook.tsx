@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -17,9 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { BookOpen, Upload } from "lucide-react";
+import { BookOpen, Upload, X } from "lucide-react";
+// New API method
 import { api } from "../../services/api";
-1;
+
 export function AddBook() {
   const [formData, setFormData] = useState({
     title: "",
@@ -33,10 +34,55 @@ export function AddBook() {
     location: "",
     pages: "",
   });
-
+  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!validTypes.includes(file.type)) {
+      setError("Only JPG/PNG images are allowed");
+      setCoverImage(null);
+      setImagePreview(null);
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image must be less than 5MB");
+      setCoverImage(null);
+      setImagePreview(null);
+      return;
+    }
+
+    // Clear any previous errors
+    setError("");
+    setCoverImage(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Remove selected image
+  const handleRemoveImage = () => {
+    setCoverImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +92,7 @@ export function AddBook() {
 
     try {
       // Real API integration
-      await api.addBook(formData);
+      await api.addBookWithImage(formData, coverImage);
 
       // Success feedback
       setSuccess("Book added successfully!");
@@ -281,11 +327,44 @@ export function AddBook() {
               {/* Book Cover Upload */}
               <div className="upload-section">
                 <Label>Book Cover (Optional)</Label>
-                <div className="upload-box">
-                  <Upload className="upload-icon" />
-                  <p>Click to upload book cover</p>
-                  <p className="upload-note">PNG, JPG up to 5MB</p>
-                </div>
+                {imagePreview ? (
+                  // Show preview when image is selected
+                  <div className="image-preview-container">
+                    <img
+                      src={imagePreview}
+                      alt="Cover preview"
+                      className="image-preview"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="remove-image-btn"
+                      disabled={loading}
+                    >
+                      <X size={16} />
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  // Show upload box when no image
+                  <div
+                    className="upload-box"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="upload-icon" />
+                    <p>Click to upload book cover</p>
+                    <p className="upload-note">PNG, JPG up to 5MB</p>
+                  </div>
+                )}
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                  disabled={loading}
+                />
               </div>
 
               {/* Submit Button */}

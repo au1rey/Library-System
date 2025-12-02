@@ -9,14 +9,14 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import pool from "./config/database"; 
+import pool from "./config/database";
 import bookCopyRoutes from "./routes/bookCopies";
 import booksRoutes from "./routes/books";
 import userRoutes from "./routes/users";
 import loanRoutes from "./routes/loans";
 import reservationRoutes from "./routes/reservations";
 import adminRoutes from "./routes/adminRoutes";
-
+import path from "path";
 
 // Load environment variables
 dotenv.config();
@@ -38,6 +38,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`${req.method} ${req.url}`);
   next();
 });
+
+// Serve uploaded files statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ============================================
 // 4. TEST ROUTE
