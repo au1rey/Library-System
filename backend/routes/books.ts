@@ -97,7 +97,7 @@ router.put("/:id", async (req: Request, res: Response) => {
 
   try {
     // Update book with all fields
-    const result = await db.query(
+    await db.query(
       `UPDATE books 
        SET title = $1, 
            author = $2, 
@@ -124,6 +124,34 @@ router.put("/:id", async (req: Request, res: Response) => {
         pages ? parseInt(pages) : null,
         id,
       ]
+    );
+
+    // Fetch the updated book with all computed fields (matching books-with-copies format)
+    const result = await db.query(
+      `SELECT 
+        b.book_id,
+        b.title,
+        b.author,
+        b.isbn,
+        b.genre,
+        b.shelf_location AS location,
+        b.description,
+        b.publisher,
+        b.pages,
+        b.publication_year,
+        COUNT(bc.copy_id) AS total_copies,
+        SUM(CASE WHEN bc.status='available' THEN 1 ELSE 0 END) AS available_copies,
+        SUM(CASE WHEN bc.status='loaned' THEN 1 ELSE 0 END) AS borrowed,
+        CASE
+          WHEN SUM(CASE WHEN bc.status='available' THEN 1 ELSE 0 END) = 0 THEN 'Out of Stock'
+          WHEN SUM(CASE WHEN bc.status='available' THEN 1 ELSE 0 END) < 3 THEN 'Low Stock'
+          ELSE 'Available'
+        END AS status
+      FROM books b
+      LEFT JOIN book_copy bc ON b.book_id = bc.book_id
+      WHERE b.book_id = $1
+      GROUP BY b.book_id`,
+      [id]
     );
 
     if (result.rows.length === 0) {

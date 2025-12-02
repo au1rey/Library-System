@@ -47,18 +47,20 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
 
   // Pre-populate form with book data
   useEffect(() => {
-    setFormData({
-      title: book.title || "",
-      author: book.author || "",
-      isbn: book.isbn || "",
-      publisher: book.publisher || "",
-      publication_year: book.publication_year?.toString() || "",
-      genre: book.genre || "",
-      description: book.description || "",
-      total_copies: book.total_copies?.toString() || "",
-      location: book.location || "",
-      pages: book.pages?.toString() || "",
-    });
+    if (book) {
+      setFormData({
+        title: book.title || "",
+        author: book.author || "",
+        isbn: book.isbn || "",
+        publisher: book.publisher || "",
+        publication_year: book.publication_year?.toString() || "",
+        genre: book.genre || "",
+        description: book.description || "",
+        total_copies: book.total_copies?.toString() || "",
+        location: book.location || "",
+        pages: book.pages?.toString() || "",
+      });
+    }
   }, [book]);
 
   const handleSubmit = async (e: React.FormEvent) => {

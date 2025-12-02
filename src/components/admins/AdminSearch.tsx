@@ -128,9 +128,22 @@ export function AdminSearch() {
   }
 
   function handleSaveEdit(updatedBook: BookWithCopies) {
-    // Update the book in the local state
+    // Update the book in the local state with full BookWithCopies structure
     setBooks(
-      books.map((b) => (b.book_id === updatedBook.book_id ? updatedBook : b))
+      books.map((b) =>
+        b.book_id === updatedBook.book_id
+          ? {
+              ...updatedBook,
+              // Ensure all required fields are present
+              status: updatedBook.status || "Available",
+              location: updatedBook.location || b.location,
+              available_copies:
+                updatedBook.available_copies ?? b.available_copies,
+              total_copies: updatedBook.total_copies ?? b.total_copies,
+              borrowed: updatedBook.borrowed ?? b.borrowed,
+            }
+          : b
+      )
     );
     setEditingBook(null);
   }
