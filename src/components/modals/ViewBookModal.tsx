@@ -41,6 +41,14 @@ export function ViewBookModal({
           </CardHeader>
 
           <CardContent>
+            {book.cover_url && (
+              <div className="modal-cover-image">
+                <img
+                  src={`http://localhost:3000${book.cover_url}`}
+                  alt={`${book.title} cover`}
+                />
+              </div>
+            )}
             <div className="modal-details">
               <p>
                 <strong>Author:</strong> {book.author}
