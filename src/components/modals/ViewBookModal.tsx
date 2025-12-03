@@ -27,6 +27,7 @@ export function ViewBookModal({
   onLoan,
   loanFeedback,
 }: ViewBookModalProps) {
+  // Prevent background scrolling when modal is open
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
