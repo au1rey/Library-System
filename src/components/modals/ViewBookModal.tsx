@@ -5,7 +5,7 @@
  *   - Admin: read-only view
  *   - User: view + Loan Book button + feedback box
  *********************************/
-
+import { useEffect } from "react";
 import "./ViewBookModal.css";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
@@ -27,6 +27,12 @@ export function ViewBookModal({
   onLoan,
   loanFeedback,
 }: ViewBookModalProps) {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
   if (!book) return null;
 
   return (
