@@ -116,11 +116,14 @@
   color: #374151;
 }
 
-/* Book Grid */
+/* Book Grid - Stacked Vertical Layout */
 .book-grid {
-  display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .book-card {

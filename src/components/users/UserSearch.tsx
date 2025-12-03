@@ -10,7 +10,7 @@ import {
 import "../styles/usersearch.css";
 import { api } from "../../services/api";
 import { ViewBookModal } from "../modals/ViewBookModal";
-
+import { BookCard } from "./UserBookCard";
 /***********************
  * Local Types
  ***********************/
@@ -20,6 +20,7 @@ type SearchBook = {
   author: string;
   category: string;
   description?: string;
+  cover_url?: string;
   availableCopies: number;
   totalCopies: number;
   location?: string;
@@ -88,6 +89,7 @@ export function UserSearch() {
         author: book.author,
         category: book.genre || "Uncategorized",
         description: book.description || "No description available.",
+        cover_url: book.cover_url,
         availableCopies: book.available_copies ?? 0,
         totalCopies: book.total_copies ?? 0,
         location: book.location || "See librarian for location",
@@ -408,84 +410,21 @@ export function UserSearch() {
             Found {filteredBooks.length} book
             {filteredBooks.length !== 1 ? "s" : ""}
           </div>
-
           {/* Book Grid */}
           <div className="book-grid">
-            {filteredBooks.map((book) => {
-              const availabilityLabel = getAvailabilityLabel(book);
-              const isAvailable = book.availableCopies > 0;
-              const isPending = isActionPending(book.id);
-
-              return (
-                <div key={book.id} className="book-card">
-                  <div className="book-header">
-                    <div>
-                      <h3 className="book-title">{book.title}</h3>
-                      <p className="book-author">by {book.author}</p>
-                    </div>
-                    <button
-                      className="favorite-btn"
-                      onClick={() => handleAddToFavorites(book.id)}
-                    >
-                      <Heart />
-                    </button>
-                  </div>
-
-                  <div className="book-tags">
-                    <span className="tag">{book.genre}</span>
-                    <span
-                      className={`tag ${
-                        isAvailable ? "available" : "borrowed"
-                      }`}
-                    >
-                      {availabilityLabel}
-                    </span>
-                  </div>
-
-                  <p className="book-description">{book.description}</p>
-
-                  <div className="book-details">
-                    <div>
-                      <Calendar /> Published{" "}
-                      {book.publishYear ? book.publishYear : "TBD"}
-                    </div>
-                    <div>
-                      <BookOpen /> {book.availableCopies} of{" "}
-                      {book.totalCopies || 0} available
-                    </div>
-                    <div>
-                      {book.pages ? `${book.pages} pages` : "Page count TBD"}
-                    </div>
-                    <div>
-                      <MapPin /> Location: {book.location}
-                    </div>
-                    <div>ISBN: {book.isbn || "Pending"}</div>
-                  </div>
-
-                  <div className="book-actions">
-                    {/* Checkout Book */}
-                    <button
-                      className="reserve-btn"
-                      onClick={() => handleCheckout(book.id)}
-                      disabled={isPending}
-                    >
-                      {isPending ? "Processing..." : "Checkout Book"}
-                    </button>
-
-                    {/* View Book  */}
-                    <button
-                      className="details-btn"
-                      onClick={() => {
-                        setLoanFeedback(null);
-                        setSelectedBook(book);
-                      }}
-                    >
-                      View Book
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {filteredBooks.map((book) => (
+              <BookCard
+                key={book.id}
+                book={book}
+                onCheckout={() => handleCheckout(book.id)}
+                onViewDetails={() => {
+                  setLoanFeedback(null);
+                  setSelectedBook(book);
+                }}
+                onFavorite={() => handleAddToFavorites(book.id)}
+                isPending={isActionPending(book.id)}
+              />
+            ))}
           </div>
 
           {!hasResults && (
