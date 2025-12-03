@@ -116,8 +116,8 @@
   color: #374151;
 }
 
-/* Book Grid - Stacked Vertical Layout */
-.book-grid {
+/* Book Grid - unique class to avoid clashes with other modules */
+.usersearch-book-grid {
   display: flex;
   flex-direction: column;
   align-items: center;

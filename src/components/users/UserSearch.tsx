@@ -411,7 +411,7 @@ export function UserSearch() {
             {filteredBooks.length !== 1 ? "s" : ""}
           </div>
           {/* Book Grid */}
-          <div className="book-grid">
+          <div className="usersearch-book-grid">
             {filteredBooks.map((book) => (
               <BookCard
                 key={book.id}
