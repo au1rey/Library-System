@@ -29,6 +29,7 @@ import { Search, Edit, Trash2, Eye, BookOpen } from "lucide-react";
 import "../styles/AdminSearch.css";
 import { ViewBookModal } from "../modals/ViewBookModal";
 import { EditBookModal } from "../modals/EditBookModal";
+import { AdminBookCard } from "./AdminBookCard";
 
 export function AdminSearch() {
   const [books, setBooks] = useState<BookWithCopies[]>([]);
@@ -84,19 +85,19 @@ export function AdminSearch() {
     return matchesSearch && matchesCategory;
   });
 
-  // Helper to get status badge color
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Available":
-        return "status-available";
-      case "Low Stock":
-        return "status-low";
-      case "Out of Stock":
-        return "status-out";
-      default:
-        return "status-default";
-    }
-  };
+  // Helper to get status badge color/*
+  //const getStatusColor = (status: string) => {
+  //switch (status) {
+  //case "Available":
+  //return "status-available";
+  //case "Low Stock":
+  //return "status-low";
+  //case "Out of Stock":
+  //return "status-out";
+  //default:
+  //return "status-default";
+  //}
+  //};
 
   // Handle delete book
   async function handleDelete(bookId: number) {
@@ -193,68 +194,18 @@ export function AdminSearch() {
         Showing {filteredBooks.length} of {books.length} books
       </div>
 
-      {/* Table */}
-      <Card>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Book Details</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Copies</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredBooks.map((book) => (
-                <TableRow key={book.book_id}>
-                  <TableCell>
-                    <div className="book-info">
-                      <p className="book-title">{book.title}</p>
-                      <p className="book-meta">by {book.author}</p>
-                      <p className="book-meta">ISBN: {book.isbn}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge>{book.genre}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(book.status)}>
-                      {book.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="book-copies">
-                      <p>Available: {book.available_copies}</p>
-                      <p className="book-meta">
-                        Borrowed: {book.total_copies - book.available_copies}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge>{book.location}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="action-buttons">
-                      <Button onClick={() => handleViewBook(book)}>
-                        <Eye size={16} />
-                      </Button>
-                      <Button onClick={() => handleEditBook(book)}>
-                        <Edit size={16} />
-                      </Button>
-                      <Button onClick={() => handleDelete(book.book_id)}>
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {/* Book Cards Grid */}
+      <div className="admin-books-grid">
+        {filteredBooks.map((book) => (
+          <AdminBookCard
+            key={book.book_id}
+            book={book}
+            onEdit={handleEditBook}
+            onView={handleViewBook}
+            onDelete={handleDelete}
+          />
+        ))}
+      </div>
 
       {/* Bulk actions */}
       <div className="admin-actions">
