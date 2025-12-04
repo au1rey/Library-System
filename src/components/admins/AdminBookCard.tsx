@@ -48,7 +48,10 @@ export function AdminBookCard({
       {/* Book Cover */}
       <div className="admin-book-cover">
         {book.cover_url ? (
-          <img src={book.cover_url} alt={`${book.title} cover`} />
+          <img
+            src={`http://localhost:3000${book.cover_url}`}
+            alt={`${book.title} cover`}
+          />
         ) : (
           <BookOpen className="admin-book-cover-placeholder" />
         )}
