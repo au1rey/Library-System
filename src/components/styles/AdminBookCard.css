@@ -5,7 +5,7 @@
 /* Horizontal Admin Book Card */
 .admin-book-card {
   display: flex;
-  gap: 1.5rem;
+  gap: 3rem;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 1.25rem;
@@ -14,7 +14,6 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   min-height: 200px;
   width: 100%;
-  max-width: 850px;
 }
 
 .admin-book-card:hover {
@@ -25,8 +24,8 @@
 /* Book Cover */
 .admin-book-cover {
   flex-shrink: 0;
-  width: 140px;
-  height: 210px;
+  width: 175px;
+  height: 260px;
   border-radius: 8px;
   overflow: hidden;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
