@@ -411,37 +411,42 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
               {/* Book Cover Upload Section */}
               <div className="upload-section">
                 <Label>Change Cover (Optional)</Label>
-                {(imagePreview || resolvedCurrentCover) && (
-                  <div className="image-preview-container">
-                    <img
-                      src={imagePreview || resolvedCurrentCover!}
-                      alt="Cover preview"
-                      className="image-preview"
-                    />
-                    {imagePreview && (
-                      <button
-                        type="button"
-                        onClick={handleRemoveImage}
-                        className="remove-image-btn"
-                        disabled={loading}
-                      >
-                        <X size={16} />
-                        Remove
-                      </button>
-                    )}
+
+                <div className="upload-flex-container">
+                  {(imagePreview || resolvedCurrentCover) && (
+                    <div className="image-preview-container">
+                      <img
+                        src={imagePreview || resolvedCurrentCover!}
+                        alt="Cover preview"
+                        className="image-preview"
+                      />
+                      {imagePreview && (
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="remove-image-btn"
+                          disabled={loading}
+                        >
+                          <X size={16} />
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Right: Upload Box */}
+                  <div
+                    className={`upload-box ${isDragging ? "dragging" : ""}`}
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragEnter={handleDragEnter}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    <Upload className="upload-icon" />
+                    <p>Click or drag to upload a new cover</p>
+                    <p className="upload-note">PNG, JPG up to 5MB</p>
                   </div>
-                )}
-                <div
-                  className={`upload-box ${isDragging ? "dragging" : ""}`}
-                  onClick={() => fileInputRef.current?.click()}
-                  onDragEnter={handleDragEnter}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  <Upload className="upload-icon" />
-                  <p>Click or drag to upload a new cover</p>
-                  <p className="upload-note">PNG, JPG up to 5MB</p>
                 </div>
                 {/* Hidden file input */}
                 <input

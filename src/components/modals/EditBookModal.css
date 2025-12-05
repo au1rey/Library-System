@@ -150,6 +150,40 @@
   font-weight: 500;
   color: #374151;
 }
+
+/* Flex container for side-by-side layout */
+.edit-book-form .upload-flex-container {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+/* Left column: Fixed width preview */
+.edit-book-form .upload-flex-container .image-preview-container {
+  flex-shrink: 0;
+  width: 200px;
+}
+
+/* Right column: Upload box fills remaining space */
+.edit-book-form .upload-flex-container .upload-box {
+  flex: 1;
+  min-height: 315px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Responsive: Stack on small screens */
+@media (max-width: 768px) {
+  .edit-book-form .upload-flex-container {
+    flex-direction: column;
+  }
+
+  .edit-book-form .upload-flex-container .image-preview-container {
+    width: 100%;
+  }
+}
 /* Upload box */
 .edit-book-form .upload-box {
   border: 2px dashed #d1d5db;
@@ -245,8 +279,10 @@
 }
 
 .edit-book-form .image-preview {
-  max-width: 200px;
-  max-height: 300px;
+  width: 100%;
+  height: auto;
+  max-height: 280px;
+  object-fit: cover;
   border-radius: 4px;
   display: block;
 }
