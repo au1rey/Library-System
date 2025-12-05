@@ -10,6 +10,7 @@ export type BookWithCopies = {
   available_copies: number;
   borrowed: number;
   status: string;
+  cover_url?: string | null;
   description?: string;
   publisher?: string;
   pages?: number;

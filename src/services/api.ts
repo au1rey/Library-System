@@ -219,4 +219,70 @@ export const api = {
 
     return res.json();
   },
+  /***********************
+   * Update existing book with optional cover image
+   * Sends FormData to support file upload
+   * @param bookId - ID of book to update
+   * @param bookData - Updated book information
+   * @param coverImage - Optional new cover image file
+   * @returns Updated book data
+   ***********************/
+  updateBookWithImage: async (
+    bookId: number,
+    bookData: {
+      title: string;
+      author: string;
+      isbn?: string;
+      publisher?: string;
+      publishYear?: string;
+      category?: string;
+      description?: string;
+      copies: string;
+      location?: string;
+      pages?: string;
+    },
+    coverImage?: File | null
+  ) => {
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append("title", bookData.title);
+    formData.append("author", bookData.author);
+    if (bookData.isbn) formData.append("isbn", bookData.isbn);
+    if (bookData.publisher) formData.append("publisher", bookData.publisher);
+    if (bookData.publishYear)
+      formData.append("publishYear", bookData.publishYear);
+    if (bookData.category) formData.append("category", bookData.category);
+    if (bookData.description)
+      formData.append("description", bookData.description);
+    formData.append("copies", bookData.copies);
+    if (bookData.location) formData.append("location", bookData.location);
+    if (bookData.pages) formData.append("pages", bookData.pages);
+
+    // Append cover image if provided
+    if (coverImage) {
+      formData.append("coverImage", coverImage);
+    }
+
+    // Get token
+    const token = localStorage.getItem("authToken");
+    const headers: HeadersInit = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    // Send FormData with PUT method
+    const res = await fetch(`${API_BASE}/api/books/${bookId}`, {
+      method: "PUT",
+      headers,
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error(err.error || res.statusText);
+    }
+
+    const data = await res.json();
+    return data.book; // Return the updated book object
+  },
 };

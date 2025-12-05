@@ -129,46 +129,74 @@ router.post(
 /***********************
  * PUT /books/:id - Update an existing book
  ***********************/
-router.put("/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const {
-    title,
-    author,
-    isbn,
-    publisher,
-    publication_year,
-    genre,
-    description,
-    total_copies,
-    location,
-    pages,
-  } = req.body;
+router.put(
+  "/:id",
+  upload.single("coverImage"),
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const {
+      title,
+      author,
+      isbn,
+      publisher,
+      publishYear,
+      category,
+      description,
+      copies,
+      location,
+      pages,
+    } = req.body;
 
-  // Validate required fields
-  if (!title || !author) {
-    return res.status(400).json({ error: "Title and author are required" });
-  }
-  if (!total_copies || total_copies < 1) {
-    return res
-      .status(400)
-      .json({ error: "Number of copies must be at least 1" });
-  }
+    const publication_year = publishYear;
+    const genre = category;
+    const total_copies = copies;
 
-  try {
-    // Start a transaction
-    await db.query("BEGIN");
+    // Validate required fields
+    if (!title || !author) {
+      return res.status(400).json({ error: "Title and author are required" });
+    }
+    if (!total_copies || total_copies < 1) {
+      return res
+        .status(400)
+        .json({ error: "Number of copies must be at least 1" });
+    }
 
-    // Get current copy count
-    const currentCopiesResult = await db.query(
-      `SELECT COUNT(*) as count FROM book_copy WHERE book_id = $1`,
-      [id]
-    );
-    const currentCopyCount = parseInt(currentCopiesResult.rows[0].count);
-    const newCopyCount = parseInt(total_copies);
+    try {
+      // Start a transaction
+      await db.query("BEGIN");
 
-    // Update book metadata
-    await db.query(
-      `UPDATE books 
+      // Get old cover URL before updating (for optional cleanup)
+      const oldBookResult = await db.query(
+        `SELECT cover_url FROM books WHERE book_id = $1`,
+        [id]
+      );
+      const oldCoverUrl = oldBookResult.rows[0]?.cover_url;
+
+      // Handle new cover image if uploaded
+      let newCoverUrl: string | null = null;
+      if (req.file) {
+        newCoverUrl = `/uploads/${req.file.filename}`;
+
+        // Delete old cover file from disk
+        if (oldCoverUrl) {
+          const oldFilePath = path.join(__dirname, "..", oldCoverUrl);
+          fs.unlink(oldFilePath, (err) => {
+            if (err) console.error("Error deleting old cover:", err);
+          });
+        }
+      }
+
+      // Get current copy count
+      const currentCopiesResult = await db.query(
+        `SELECT COUNT(*) as count FROM book_copy WHERE book_id = $1`,
+        [id]
+      );
+      const currentCopyCount = parseInt(currentCopiesResult.rows[0].count);
+      const newCopyCount = parseInt(total_copies);
+
+      // Update book metadata
+      await db.query(
+        `UPDATE books 
        SET title = $1, 
            author = $2, 
            isbn = $3, 
@@ -178,71 +206,81 @@ router.put("/:id", async (req: Request, res: Response) => {
            description = $7, 
            total_copies = $8, 
            shelf_location = $9, 
-           pages = $10
-       WHERE book_id = $11`,
-      [
-        title,
-        author,
-        isbn || null,
-        publisher || null,
-        publication_year ? parseInt(publication_year) : null,
-        genre || null,
-        description || null,
-        newCopyCount,
-        location || null,
-        pages ? parseInt(pages) : null,
-        id,
-      ]
-    );
+           pages = $10,
+           cover_url = COALESCE($11, cover_url)
+       WHERE book_id = $12`,
+        [
+          title,
+          author,
+          isbn || null,
+          publisher || null,
+          publication_year ? parseInt(publication_year) : null,
+          genre || null,
+          description || null,
+          newCopyCount,
+          location || null,
+          pages ? parseInt(pages) : null,
+          newCoverUrl,
+          id,
+        ]
+      );
 
-    // Handle copy count changes
-    if (newCopyCount > currentCopyCount) {
-      // Add new copies
-      const copiesToAdd = newCopyCount - currentCopyCount;
-      for (let i = 0; i < copiesToAdd; i++) {
-        await db.query(
-          `INSERT INTO book_copy (book_id, status) VALUES ($1, 'available')`,
-          [id]
-        );
-      }
-    } else if (newCopyCount < currentCopyCount) {
-      // Remove excess available copies
-      const copiesToRemove = currentCopyCount - newCopyCount;
+      // Handle copy count changes
+      if (newCopyCount > currentCopyCount) {
+        // Add new copies
+        const copiesToAdd = newCopyCount - currentCopyCount;
+        for (let i = 0; i < copiesToAdd; i++) {
+          await db.query(
+            `INSERT INTO book_copy (book_id, status) VALUES ($1, 'available')`,
+            [id]
+          );
+        }
+      } else if (newCopyCount < currentCopyCount) {
+        // Remove excess available copies
+        const copiesToRemove = currentCopyCount - newCopyCount;
 
-      // Only remove available copies (not loaned ones)
-      const availableCopies = await db.query(
-        `SELECT copy_id FROM book_copy 
+        // Only remove available copies (not loaned ones)
+        const availableCopies = await db.query(
+          `SELECT copy_id FROM book_copy 
          WHERE book_id = $1 AND status = 'available' 
          ORDER BY copy_id 
          LIMIT $2`,
-        [id, copiesToRemove]
-      );
+          [id, copiesToRemove]
+        );
 
-      if (availableCopies.rows.length < copiesToRemove) {
-        await db.query("ROLLBACK");
-        return res.status(400).json({
-          error: `Cannot reduce copies: only ${
-            availableCopies.rows.length
-          } available copies exist (${
-            currentCopyCount - availableCopies.rows.length
-          } are currently loaned)`,
-        });
+        if (availableCopies.rows.length < copiesToRemove) {
+          await db.query("ROLLBACK");
+
+          // Clean up newly uploaded file if transaction fails
+          if (req.file) {
+            fs.unlink(req.file.path, (err) => {
+              if (err) console.error("Error deleting uploaded file:", err);
+            });
+          }
+
+          return res.status(400).json({
+            error: `Cannot reduce copies: only ${
+              availableCopies.rows.length
+            } available copies exist (${
+              currentCopyCount - availableCopies.rows.length
+            } are currently loaned)`,
+          });
+        }
+
+        // Delete the available copies
+        for (const copy of availableCopies.rows) {
+          await db.query(`DELETE FROM book_copy WHERE copy_id = $1`, [
+            copy.copy_id,
+          ]);
+        }
       }
 
-      // Delete the available copies
-      for (const copy of availableCopies.rows) {
-        await db.query(`DELETE FROM book_copy WHERE copy_id = $1`, [
-          copy.copy_id,
-        ]);
-      }
-    }
+      // Commit the transaction
+      await db.query("COMMIT");
 
-    // Commit the transaction
-    await db.query("COMMIT");
-
-    // Fetch the updated book with all computed fields (matching books-with-copies format)
-    const result = await db.query(
-      `SELECT 
+      // Fetch the updated book with all computed fields (matching books-with-copies format)
+      const result = await db.query(
+        `SELECT 
         b.book_id,
         b.title,
         b.author,
@@ -266,22 +304,32 @@ router.put("/:id", async (req: Request, res: Response) => {
       LEFT JOIN book_copy bc ON b.book_id = bc.book_id
       WHERE b.book_id = $1
       GROUP BY b.book_id`,
-      [id]
-    );
+        [id]
+      );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Book not found" });
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Book not found" });
+      }
+
+      res.json({
+        message: "Book updated successfully",
+        book: result.rows[0],
+      });
+    } catch (err: any) {
+      console.error("Error updating book:", err);
+      await db.query("ROLLBACK");
+
+      // Clean up uploaded file if error occurs
+      if (req.file) {
+        fs.unlink(req.file.path, (unlinkErr) => {
+          if (unlinkErr) console.error("Error deleting file:", unlinkErr);
+        });
+      }
+
+      res.status(500).json({ error: err.message });
     }
-
-    res.json({
-      message: "Book updated successfully",
-      book: result.rows[0],
-    });
-  } catch (err: any) {
-    console.error("Error updating book:", err);
-    res.status(500).json({ error: err.message });
   }
-});
+);
 
 /***********************
  * Books and book copies

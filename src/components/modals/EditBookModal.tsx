@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -17,8 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Upload, X } from "lucide-react";
 import type { BookWithCopies } from "../../../backend/models/BooksWithCopies";
+import { api } from "../../services/api";
 import "./EditBookModal.css";
 
 interface EditBookModalProps {
@@ -41,6 +42,13 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
     pages: "",
   });
 
+  //image state
+  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [currentCoverUrl, setCurrentCoverUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -60,8 +68,87 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
         location: book.location || "",
         pages: book.pages?.toString() || "",
       });
+      if (book.cover_url) {
+        setCurrentCoverUrl(book.cover_url);
+      }
     }
   }, [book]);
+
+  // Validation logic for file
+  const validateAndSetFile = (file: File) => {
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!validTypes.includes(file.type)) {
+      setError("Only JPG/PNG images are allowed");
+      setCoverImage(null);
+      setImagePreview(null);
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image must be less than 5MB");
+      setCoverImage(null);
+      setImagePreview(null);
+      return;
+    }
+
+    // Clear any previous errors
+    setError("");
+    setCoverImage(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Handle file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    validateAndSetFile(file);
+  };
+
+  //  Drag and drop handlers
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      validateAndSetFile(files[0]);
+    }
+  };
+
+  // : Remove selected image
+  const handleRemoveImage = () => {
+    setCoverImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,41 +176,29 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/books/${book.book_id}`,
+      // Use new API method with multipart support
+      const updatedBook = await api.updateBookWithImage(
+        book.book_id,
         {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: formData.title,
-            author: formData.author,
-            isbn: formData.isbn || null,
-            publisher: formData.publisher || null,
-            publication_year: formData.publication_year
-              ? parseInt(formData.publication_year)
-              : null,
-            genre: formData.genre,
-            description: formData.description || null,
-            total_copies: parseInt(formData.total_copies),
-            location: formData.location || null,
-            pages: formData.pages ? parseInt(formData.pages) : null,
-          }),
-        }
+          title: formData.title,
+          author: formData.author,
+          isbn: formData.isbn || undefined,
+          publisher: formData.publisher || undefined,
+          publishYear: formData.publication_year || undefined,
+          category: formData.genre,
+          description: formData.description || undefined,
+          copies: formData.total_copies,
+          location: formData.location || undefined,
+          pages: formData.pages || undefined,
+        },
+        coverImage
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update book");
-      }
-
-      const data = await response.json();
       setSuccess("Book updated successfully!");
 
       // Call onSave with updated book data
       setTimeout(() => {
-        onSave(data.book);
+        onSave(updatedBook);
         onClose();
       }, 800);
     } catch (err: any) {
@@ -150,7 +225,9 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
     "Children's Books",
     "Other",
   ];
-
+  // Determine what to show for cover image area
+  const showImagePreview = imagePreview || currentCoverUrl;
+  const displayImageSrc = imagePreview || currentCoverUrl;
   return (
     <div className="edit-modal-overlay" onClick={onClose}>
       <div className="edit-modal-content" onClick={(e) => e.stopPropagation()}>
@@ -328,6 +405,52 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
                     />
                   </div>
                 </div>
+              </div>
+              {/* Book Cover Upload Section */}
+              <div className="upload-section">
+                <Label>Book Cover (Optional)</Label>
+                {showImagePreview ? (
+                  // Show preview when image is selected or exists
+                  <div className="image-preview-container">
+                    <img
+                      src={displayImageSrc!}
+                      alt="Cover preview"
+                      className="image-preview"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="remove-image-btn"
+                      disabled={loading}
+                    >
+                      <X size={16} />
+                      {imagePreview ? "Remove New Image" : "Change Cover"}
+                    </button>
+                  </div>
+                ) : (
+                  // Show upload box when no image
+                  <div
+                    className={`upload-box ${isDragging ? "dragging" : ""}`}
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragEnter={handleDragEnter}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    <Upload className="upload-icon" />
+                    <p>Click to upload book cover</p>
+                    <p className="upload-note">PNG, JPG up to 5MB</p>
+                  </div>
+                )}
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                  disabled={loading}
+                />
               </div>
 
               {/* Button row */}
