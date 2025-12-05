@@ -226,8 +226,10 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
     "Other",
   ];
   // Determine what to show for cover image area
-  const showImagePreview = imagePreview || currentCoverUrl;
-  const displayImageSrc = imagePreview || currentCoverUrl;
+  const resolvedCurrentCover = currentCoverUrl
+    ? `http://localhost:3000${currentCoverUrl}`
+    : null;
+
   return (
     <div className="edit-modal-overlay" onClick={onClose}>
       <div className="edit-modal-content" onClick={(e) => e.stopPropagation()}>
@@ -408,40 +410,39 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
               </div>
               {/* Book Cover Upload Section */}
               <div className="upload-section">
-                <Label>Book Cover (Optional)</Label>
-                {showImagePreview ? (
-                  // Show preview when image is selected or exists
+                <Label>Change Cover (Optional)</Label>
+                {(imagePreview || resolvedCurrentCover) && (
                   <div className="image-preview-container">
                     <img
-                      src={displayImageSrc!}
+                      src={imagePreview || resolvedCurrentCover!}
                       alt="Cover preview"
                       className="image-preview"
                     />
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      className="remove-image-btn"
-                      disabled={loading}
-                    >
-                      <X size={16} />
-                      {imagePreview ? "Remove New Image" : "Change Cover"}
-                    </button>
-                  </div>
-                ) : (
-                  // Show upload box when no image
-                  <div
-                    className={`upload-box ${isDragging ? "dragging" : ""}`}
-                    onClick={() => fileInputRef.current?.click()}
-                    onDragEnter={handleDragEnter}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                  >
-                    <Upload className="upload-icon" />
-                    <p>Click to upload book cover</p>
-                    <p className="upload-note">PNG, JPG up to 5MB</p>
+                    {imagePreview && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="remove-image-btn"
+                        disabled={loading}
+                      >
+                        <X size={16} />
+                        Remove
+                      </button>
+                    )}
                   </div>
                 )}
+                <div
+                  className={`upload-box ${isDragging ? "dragging" : ""}`}
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragEnter={handleDragEnter}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <Upload className="upload-icon" />
+                  <p>Click or drag to upload a new cover</p>
+                  <p className="upload-note">PNG, JPG up to 5MB</p>
+                </div>
                 {/* Hidden file input */}
                 <input
                   ref={fileInputRef}

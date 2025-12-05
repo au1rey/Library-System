@@ -10,7 +10,7 @@ type AdminBookCardProps = {
     author: string;
     genre: string | null;
     description?: string;
-    cover_url?: string;
+    cover_url?: string | null;
     available_copies: number;
     total_copies: number;
     location: string | null;
