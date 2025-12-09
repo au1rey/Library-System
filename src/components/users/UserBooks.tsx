@@ -1,124 +1,142 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   BookOpen,
   Calendar,
   Clock,
-  Star,
-  RotateCcw,
   AlertCircle,
   CheckCircle,
+  Users,
+  Loader2,
 } from "lucide-react";
 import "../styles/userBooks.css";
+import { api } from "../../services/api";
+
+type Loan = {
+  id: number;
+  book_id: number;
+  checkout_date: string;
+  due_date: string;
+  return_date?: string;
+  status: string;
+  book_title: string;
+  book_author: string;
+  book_cover?: string;
+  is_overdue: boolean;
+  days_remaining?: number;
+};
+
+type Reservation = {
+  id: number;
+  book_id: number;
+  reservation_date: string;
+  position: number;
+  status: string;
+  book_title: string;
+  book_author: string;
+  book_cover?: string;
+  available_copies: number;
+};
 
 export function UserBooks() {
   const [activeTab, setActiveTab] = useState("current");
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const currentBooks = [
-    {
-      id: 1,
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      borrowDate: "Nov 15, 2024",
-      dueDate: "Dec 15, 2024",
-      daysLeft: 18,
-      progress: 65,
-      renewals: 0,
-      maxRenewals: 2,
-      status: "reading",
-    },
-    {
-      id: 2,
-      title: "To Kill a Mockingbird",
-      author: "Harper Lee",
-      borrowDate: "Nov 20, 2024",
-      dueDate: "Dec 20, 2024",
-      daysLeft: 23,
-      progress: 30,
-      renewals: 1,
-      maxRenewals: 2,
-      status: "reading",
-    },
-    {
-      id: 3,
-      title: "1984",
-      author: "George Orwell",
-      borrowDate: "Oct 25, 2024",
-      dueDate: "Nov 25, 2024",
-      daysLeft: -2,
-      progress: 80,
-      renewals: 2,
-      maxRenewals: 2,
-      status: "overdue",
-    },
-  ];
+  // Get current user from localStorage
+  const currentUser = useMemo(() => {
+    try {
+      const stored = localStorage.getItem("currentUser");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }, []);
 
-  const bookHistory = [
-    {
-      id: 4,
-      title: "Pride and Prejudice",
-      author: "Jane Austen",
-      borrowDate: "Sep 1, 2024",
-      returnDate: "Sep 28, 2024",
-      rating: 5,
-    },
-    {
-      id: 5,
-      title: "The Catcher in the Rye",
-      author: "J.D. Salinger",
-      borrowDate: "Aug 15, 2024",
-      returnDate: "Sep 10, 2024",
-      rating: 4,
-    },
-    {
-      id: 6,
-      title: "A Brief History of Time",
-      author: "Stephen Hawking",
-      borrowDate: "Jul 20, 2024",
-      returnDate: "Aug 12, 2024",
-      rating: 5,
-    },
-  ];
+  useEffect(() => {
+    if (currentUser) {
+      fetchUserData();
+    }
+  }, [currentUser]);
 
-  const favorites = [
-    {
-      id: 7,
-      title: "Dune",
-      author: "Frank Herbert",
-      category: "Science Fiction",
-      available: true,
-      rating: 4.6,
-    },
-    {
-      id: 8,
-      title: "The Lord of the Rings",
-      author: "J.R.R. Tolkien",
-      category: "Fantasy",
-      available: false,
-      rating: 4.8,
-    },
-  ];
+  const fetchUserData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [loansData, reservationsData] = await Promise.all([
+        api.getUserLoans(currentUser.id),
+        api.getUserReservations(currentUser.id),
+      ]);
+      setLoans(loansData);
+      setReservations(reservationsData);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to load your books"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleRenew = (id: number) => alert(`Book renewed successfully!`);
-  const handleReturn = (id: number) => alert(`Book returned successfully!`);
-  const handleReserve = (id: number) => alert(`Book reserved successfully!`);
+  const currentBooks = loans.filter((loan) => loan.status === "active");
+  const bookHistory = loans.filter((loan) => loan.status === "returned");
 
-  const getStatusClass = (status: string, daysLeft: number) => {
-    if (status === "overdue") return "badge badge-overdue";
-    if (daysLeft <= 3) return "badge badge-warning";
+  const overdueCount = currentBooks.filter((b) => b.is_overdue).length;
+  const dueSoonCount = currentBooks.filter(
+    (b) => !b.is_overdue && (b.days_remaining ?? 0) <= 3
+  ).length;
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const getStatusClass = (isOverdue: boolean, daysLeft?: number) => {
+    if (isOverdue) return "badge badge-overdue";
+    if (daysLeft !== undefined && daysLeft <= 3) return "badge badge-warning";
     return "badge badge-good";
   };
 
-  const renderStars = (rating: number) =>
-    Array.from({ length: 5 }, (_, i) => (
-      <Star key={i} className={`star ${i < rating ? "filled" : ""}`} />
-    ));
+  if (!currentUser) {
+    return (
+      <div className="user-books-container">
+        <div className="empty-state">
+          <AlertCircle size={48} />
+          <h3>Please sign in</h3>
+          <p>You need to be signed in to view your books.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="user-books-container">
+        <div className="empty-state">
+          <Loader2 size={48} className="spinning" />
+          <p>Loading your books...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="user-books-container">
       <header className="header">
         <h1>Your Books</h1>
-        <p>Manage your borrowed books, reading history, and favorites.</p>
+        <p>Manage your borrowed books, reservations, and reading history.</p>
       </header>
+
+      {error && (
+        <div className="error-banner">
+          <AlertCircle size={20} />
+          <span>{error}</span>
+        </div>
+      )}
 
       {/* Quick Stats */}
       <div className="stats-grid">
@@ -126,28 +144,28 @@ export function UserBooks() {
           <BookOpen className="icon blue" />
           <div>
             <p>Currently Reading</p>
-            <h2>3</h2>
+            <h2>{currentBooks.length}</h2>
           </div>
         </div>
         <div className="stat-card">
           <AlertCircle className="icon yellow" />
           <div>
-            <p>Due Soon</p>
-            <h2>1</h2>
+            <p>Due Soon / Overdue</p>
+            <h2>{dueSoonCount + overdueCount}</h2>
           </div>
         </div>
         <div className="stat-card">
           <CheckCircle className="icon green" />
           <div>
             <p>Books Read</p>
-            <h2>12</h2>
+            <h2>{bookHistory.length}</h2>
           </div>
         </div>
         <div className="stat-card">
-          <Star className="icon purple" />
+          <Users className="icon purple" />
           <div>
-            <p>Favorites</p>
-            <h2>8</h2>
+            <p>Reservations</p>
+            <h2>{reservations.length}</h2>
           </div>
         </div>
       </div>
@@ -159,122 +177,141 @@ export function UserBooks() {
             onClick={() => setActiveTab("current")}
             className={activeTab === "current" ? "active" : ""}
           >
-            Currently Reading
+            Currently Reading ({currentBooks.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("reservations")}
+            className={activeTab === "reservations" ? "active" : ""}
+          >
+            Reservations ({reservations.length})
           </button>
           <button
             onClick={() => setActiveTab("history")}
             className={activeTab === "history" ? "active" : ""}
           >
-            Reading History
-          </button>
-          <button
-            onClick={() => setActiveTab("favorites")}
-            className={activeTab === "favorites" ? "active" : ""}
-          >
-            Favorites
+            Reading History ({bookHistory.length})
           </button>
         </div>
 
-        {/* CURRENT */}
+        {/* CURRENT LOANS */}
         {activeTab === "current" && (
           <div className="tab-content">
-            {currentBooks.map((book) => (
-              <div className="book-card" key={book.id}>
-                <div className="book-header">
-                  <div>
-                    <h3>{book.title}</h3>
-                    <p>by {book.author}</p>
-                  </div>
-                  <span className={getStatusClass(book.status, book.daysLeft)}>
-                    {book.status === "overdue"
-                      ? "Overdue"
-                      : `${book.daysLeft} days left`}
-                  </span>
-                </div>
-                <div className="book-grid">
-                  <div>
-                    <p>
-                      <Calendar size={16} /> Borrowed: {book.borrowDate}
-                    </p>
-                    <p>
-                      <Clock size={16} /> Due: {book.dueDate}
-                    </p>
-                    <p>
-                      <RotateCcw size={16} /> Renewals: {book.renewals}/
-                      {book.maxRenewals}
-                    </p>
-                  </div>
-                  <div></div>
-                  <div className="book-actions">
-                    {book.renewals < book.maxRenewals && (
-                      <button
-                        className="btn-outline"
-                        onClick={() => handleRenew(book.id)}
-                      >
-                        Renew
-                      </button>
-                    )}
-                    <button
-                      className="btn"
-                      onClick={() => handleReturn(book.id)}
-                    >
-                      Return
-                    </button>
-                  </div>
-                </div>
+            {currentBooks.length === 0 ? (
+              <div className="empty-tab">
+                <BookOpen size={48} />
+                <h3>No active loans</h3>
+                <p>You don't have any books checked out right now.</p>
               </div>
-            ))}
+            ) : (
+              currentBooks.map((book) => (
+                <div className="book-card" key={book.id}>
+                  <div className="book-header">
+                    <div>
+                      <h3>{book.book_title}</h3>
+                      <p>by {book.book_author}</p>
+                    </div>
+                    <span
+                      className={getStatusClass(
+                        book.is_overdue,
+                        book.days_remaining
+                      )}
+                    >
+                      {book.is_overdue
+                        ? `Overdue (${Math.abs(book.days_remaining ?? 0)} days)`
+                        : `${book.days_remaining} days left`}
+                    </span>
+                  </div>
+                  <div className="book-grid">
+                    <div>
+                      <p>
+                        <Calendar size={16} /> Checked out:{" "}
+                        {formatDate(book.checkout_date)}
+                      </p>
+                      <p>
+                        <Clock size={16} /> Due: {formatDate(book.due_date)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* RESERVATIONS */}
+        {activeTab === "reservations" && (
+          <div className="tab-content">
+            {reservations.length === 0 ? (
+              <div className="empty-tab">
+                <Users size={48} />
+                <h3>No reservations</h3>
+                <p>You don't have any book reservations at the moment.</p>
+              </div>
+            ) : (
+              reservations.map((reservation) => (
+                <div className="book-card" key={reservation.id}>
+                  <div className="book-header">
+                    <div>
+                      <h3>{reservation.book_title}</h3>
+                      <p>by {reservation.book_author}</p>
+                    </div>
+                    <span className="badge badge-info">
+                      {reservation.status === "ready"
+                        ? "Ready for pickup!"
+                        : `Position #${reservation.position} in queue`}
+                    </span>
+                  </div>
+                  <div className="book-grid">
+                    <div>
+                      <p>
+                        <Calendar size={16} /> Reserved:{" "}
+                        {formatDate(reservation.reservation_date)}
+                      </p>
+                      <p>
+                        <BookOpen size={16} /> Available copies:{" "}
+                        {reservation.available_copies}
+                      </p>
+                    </div>
+                  </div>
+                  {reservation.status === "ready" && (
+                    <div className="ready-notice">
+                      <CheckCircle size={18} />
+                      <span>
+                        Your book is ready! Please pick it up from the library.
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         )}
 
         {/* HISTORY */}
         {activeTab === "history" && (
           <div className="tab-content">
-            {bookHistory.map((book) => (
-              <div className="book-card" key={book.id}>
-                <div className="book-header">
-                  <div>
-                    <h3>{book.title}</h3>
-                    <p>by {book.author}</p>
-                    <p className="dates">
-                      Borrowed: {book.borrowDate} • Returned: {book.returnDate}
-                    </p>
-                  </div>
-                  <div className="rating">{renderStars(book.rating)}</div>
-                </div>
+            {bookHistory.length === 0 ? (
+              <div className="empty-tab">
+                <CheckCircle size={48} />
+                <h3>No reading history</h3>
+                <p>Your completed books will appear here.</p>
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* FAVORITES */}
-        {activeTab === "favorites" && (
-          <div className="tab-content favorites-grid">
-            {favorites.map((book) => (
-              <div className="book-card" key={book.id}>
-                <div className="book-header">
-                  <div>
-                    <h3>{book.title}</h3>
-                    <p>by {book.author}</p>
-                    <span className="badge badge-outline">{book.category}</span>
-                  </div>
-                  <div className="rating">
-                    {renderStars(Math.floor(book.rating))}
-                    <p>{book.rating}/5</p>
+            ) : (
+              bookHistory.map((book) => (
+                <div className="book-card" key={book.id}>
+                  <div className="book-header">
+                    <div>
+                      <h3>{book.book_title}</h3>
+                      <p>by {book.book_author}</p>
+                      <p className="dates">
+                        Borrowed: {formatDate(book.checkout_date)} • Returned:{" "}
+                        {book.return_date && formatDate(book.return_date)}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="book-actions">
-                  <button
-                    className={book.available ? "btn" : "btn-outline disabled"}
-                    onClick={() => handleReserve(book.id)}
-                    disabled={!book.available}
-                  >
-                    {book.available ? "Reserve" : "Unavailable"}
-                  </button>
-                  <button className="btn-ghost">Remove</button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
       </div>
