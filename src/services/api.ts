@@ -285,4 +285,53 @@ export const api = {
     const data = await res.json();
     return data.book; // Return the updated book object
   },
+  /***********************
+   * RESERVATION ENDPOINTS
+   ***********************/
+
+  // Create a reservation
+  reserveBook: (bookId: number, userId: number) =>
+    request("/api/reservations", {
+      method: "POST",
+      body: JSON.stringify({ bookId, userId }),
+    }),
+
+  // Get reservations for a specific user (UserBooks screen)
+  getUserReservations: (userId: number) =>
+    request(`/api/reservations/user/${userId}`, {
+      method: "GET",
+    }),
+
+  // Admin: get all active reservations with joined data
+  getAllReservations: () =>
+    request("/api/reservations/all", {
+      method: "GET",
+    }),
+
+  // Admin: fulfill a reservation (creates loan)
+  fulfillReservation: (reservationId: number) =>
+    request(`/api/reservations/${reservationId}/fulfill`, {
+      method: "POST",
+    }),
+
+  // Admin: cancel a reservation
+  cancelReservation: (reservationId: number) =>
+    request(`/api/reservations/${reservationId}/cancel`, {
+      method: "POST",
+    }),
+
+  // Stats for dashboard (simple example)
+  getReservationStats: () =>
+    request("/api/reservations/all", { method: "GET" }).then(
+      (reservations: any[]) => {
+        const pending = reservations.filter(
+          (r) => r.status === "pending"
+        ).length;
+        const ready = reservations.filter((r) => r.status === "ready").length;
+        return {
+          pending_reservations: pending,
+          ready_reservations: ready,
+        };
+      }
+    ),
 };

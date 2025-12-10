@@ -231,7 +231,8 @@ export function ReservationsManager() {
 
                 <div className="queue-list">
                   {data.queue.map((reservation, index) => {
-                    processingId === reservation.reservation_id;
+                    const isProcessing =
+                      processingId === reservation.reservation_id;
                     const canFulfill = data.available_copies > 0 && index === 0;
 
                     return (

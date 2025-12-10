@@ -64,14 +64,13 @@ router.post("/checkout", async (req: Request, res: Response) => {
     }
 
     // Create loan with due date (14 days from now)
-    const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 14);
-
     const loanResult = await client.query(
-      `INSERT INTO loans (user_id, copy_id, loan_date, due_date, status)
-       VALUES ($1, $2, NOW(), $3, 'active')
-       RETURNING *`,
-      [userId, bookId, dueDate]
+      `
+      INSERT INTO loans (user_id, copy_id, loan_date, due_date, status)
+      VALUES ($1, $2, NOW(), NOW() + INTERVAL '14 days', 'active')
+      RETURNING *;
+      `,
+      [userId, copyId]
     );
 
     // Decrement available copies
@@ -100,18 +99,24 @@ router.post("/checkout", async (req: Request, res: Response) => {
  * Return a loaned book (update returnDate)
  ***********************/
 router.put("/return/:loanId", async (req: Request, res: Response) => {
-  const loanId = parseInt(req.params.id);
+  const loanId = parseInt(req.params.LoanId, 10);
+
+  if (Number.isNaN(loanId)) {
+    return res.status(400).json({ error: "Invalid loanId" });
+  }
 
   const client = await db.connect();
 
   try {
     await client.query("BEGIN");
+
     // Get loan details
     const loanResult = await client.query(
       `SELECT l.*, bc.book_id 
        FROM loans l
        JOIN book_copy bc ON l.copy_id = bc.copy_id
-       WHERE l.loan_id = $1 AND l.return_date IS NULL 
+       WHERE l.loan_id = $
+        AND l.return_date IS NULL 
        FOR UPDATE`,
       [loanId]
     );
@@ -122,35 +127,45 @@ router.put("/return/:loanId", async (req: Request, res: Response) => {
     }
 
     const loan = loanResult.rows[0];
-    const bookId = loan.book_id;
+    const bookId = loan.book_id as number;
 
     // Mark loan as returned
     await client.query(
-      `UPDATE loans SET return_date = NOW(), status = 'returned' WHERE loan_id= $1`,
+      `UPDATE loans 
+      SET return_date = NOW(), status = 'returned' 
+      WHERE loan_id= $1`,
       [loanId]
     );
 
     // Increment available copies
     await client.query(
       "UPDATE books SET available_copies = available_copies + 1 WHERE book_id = $1",
-      [loan.book_id]
+      [bookId]
     );
 
     // Check if there are pending reservations
     const reservationResult = await client.query(
-      `SELECT * FROM reservations 
-       WHERE book_id = $1 AND status = 'pending' 
-       ORDER BY position, reservation_date 
-       LIMIT 1`,
+      `
+      SELECT *
+       FROM reservations 
+       WHERE book_id = $1 
+       AND status = 'pending' 
+       ORDER BY position ASC, reservation_date ASC
+       LIMIT 1
+       `,
       [bookId]
     );
 
-    let notification = null;
+    let notification: string | null = null;
     if (reservationResult.rows.length > 0) {
       // Mark first reservation as ready
       const reservation = reservationResult.rows[0];
       await client.query(
-        "UPDATE reservations SET status = 'ready' WHERE id = $1",
+        `
+        UPDATE reservations
+        SET status = 'ready'
+        WHERE reservation_id = $1;
+        `,
         [reservation.reservation_id]
       );
       notification = `Reservation for user ${reservation.user_id} is now ready`;
@@ -175,30 +190,40 @@ router.put("/return/:loanId", async (req: Request, res: Response) => {
  * GET /api/loans
  * Get all loans with book and user details
  ***********************/
-router.get("/active", async (_req: Request, res: Response) => {
+router.get("/active", async (req: Request, res: Response) => {
+  const userId = parseInt(req.params.userId, 10);
+  if (Number.isNaN(userId)) {
+    return res.status(400).json({ error: "Invalid userId" });
+  }
   try {
     const result = await db.query(
-      `SELECT 
+      `
+   SELECT 
         l.loan_id,
-        l.user_id,
         l.copy_id,
         l.loan_date,
         l.due_date,
+        l.return_date,
         l.status,
         bc.book_id,
-        b.title as book_title,
-        b.author as book_author,
-        u.name as user_name,
-        u.email as user_email,
+        b.title      AS book_title,
+        b.author     AS book_author,
+        b.cover_url  AS book_cover,
         CASE 
-          WHEN l.due_date < NOW() THEN true 
+          WHEN l.due_date < NOW() AND l.return_date IS NULL THEN true 
           ELSE false 
-        END as is_overdue
+        END AS is_overdue,
+        CASE 
+          WHEN l.return_date IS NULL THEN EXTRACT(DAY FROM l.due_date - NOW())::int
+          ELSE NULL
+        END AS days_remaining
       FROM loans l
       JOIN book_copy bc ON l.copy_id = bc.copy_id
-      JOIN users u ON l.user_id = u.user_id
-      WHERE l.return_date IS NULL
-      ORDER BY l.due_date ASC`
+      JOIN books b      ON bc.book_id = b.book_id
+      WHERE l.user_id = $1
+      ORDER BY l.loan_date DESC;
+      `,
+      [userId]
     );
     res.json(result.rows);
   } catch (err: any) {
