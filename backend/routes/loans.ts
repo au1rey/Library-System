@@ -48,7 +48,7 @@ router.post("/checkout", async (req: Request, res: Response) => {
       `SELECT copy_id FROM book_copy 
        WHERE book_id = $1 
        AND copy_id NOT IN (
-         SELECT copy_id FROM loans WHERE return_darouter.put("/return/:loanId", async (req, res) => {te IS NULL
+        SELECT copy_id FROM loans WHERE return_date IS NULL
        )
        LIMIT 1`,
       [bookId]
