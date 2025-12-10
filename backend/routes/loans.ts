@@ -48,7 +48,7 @@ router.post("/checkout", async (req: Request, res: Response) => {
       `SELECT copy_id FROM book_copy 
        WHERE book_id = $1 
        AND copy_id NOT IN (
-         SELECT copy_id FROM loans WHERE return_date IS NULL
+         SELECT copy_id FROM loans WHERE return_darouter.put("/return/:loanId", async (req, res) => {te IS NULL
        )
        LIMIT 1`,
       [bookId]
@@ -99,8 +99,7 @@ router.post("/checkout", async (req: Request, res: Response) => {
  * Return a loaned book (update returnDate)
  ***********************/
 router.put("/return/:loanId", async (req: Request, res: Response) => {
-  const loanId = parseInt(req.params.LoanId, 10);
-
+  const loanId = parseInt(req.params.loanId, 10);
   if (Number.isNaN(loanId)) {
     return res.status(400).json({ error: "Invalid loanId" });
   }
@@ -115,7 +114,7 @@ router.put("/return/:loanId", async (req: Request, res: Response) => {
       `SELECT l.*, bc.book_id 
        FROM loans l
        JOIN book_copy bc ON l.copy_id = bc.copy_id
-       WHERE l.loan_id = $
+       WHERE l.loan_id = $1
         AND l.return_date IS NULL 
        FOR UPDATE`,
       [loanId]
