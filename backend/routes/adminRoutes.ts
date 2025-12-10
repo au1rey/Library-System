@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
-import pool from "../config/database"; 
-
+import pool from "../config/database";
 
 const router = Router();
 
@@ -10,17 +9,29 @@ const router = Router();
 router.get("/dashboard-stats", async (req: Request, res: Response) => {
   try {
     const totalBooks = await pool.query("SELECT COUNT(*) AS count FROM books");
-    const totalUsers = await pool.query("SELECT COUNT(*) AS count FROM users");
-    const borrowedBooks = await pool.query("SELECT COUNT(*) AS count FROM borrowings WHERE returned = FALSE");
-    const overdueBooks = await pool.query(
-      "SELECT COUNT(*) AS count FROM borrowings WHERE returned = FALSE AND due_date < NOW()"
+    const totalUsers = await pool.query(
+      "SELECT COUNT(*) AS count FROM library_users"
+    );
+    const activeLoans = await pool.query(
+      "SELECT COUNT(*) AS count FROM loans WHERE return_date IS NULL"
+    );
+    const overdueLoans = await pool.query(
+      "SELECT COUNT(*) AS count FROM loans WHERE return_date IS NULL AND due_date < NOW()"
+    );
+    const activeReservations = await pool.query(
+      "SELECT COUNT(*) AS count FROM reservations WHERE status = 'pending'"
+    );
+    const readyReservations = await pool.query(
+      "SELECT COUNT(*) AS count FROM reservations WHERE status = 'ready'"
     );
 
     res.json({
       totalBooks: Number(totalBooks.rows[0].count),
-      activeUsers: Number(totalUsers.rows[0].count),
-      borrowedBooks: Number(borrowedBooks.rows[0].count),
-      overdueBooks: Number(overdueBooks.rows[0].count),
+      totalUsers: Number(totalUsers.rows[0].count),
+      active_loans: Number(activeLoans.rows[0].count),
+      overdue_loans: Number(overdueLoans.rows[0].count),
+      pending_reservations: Number(activeReservations.rows[0].count),
+      ready_reservations: Number(readyReservations.rows[0].count),
     });
   } catch (err) {
     console.error("Dashboard error:", err);
