@@ -190,41 +190,31 @@ router.put("/return/:loanId", async (req: Request, res: Response) => {
  * GET /api/loans
  * Get all loans with book and user details
  ***********************/
-router.get("/active", async (req: Request, res: Response) => {
-  const userId = parseInt(req.params.userId, 10);
-  if (Number.isNaN(userId)) {
-    return res.status(400).json({ error: "Invalid userId" });
-  }
+router.get("/active", async (_req: Request, res: Response) => {
   try {
     const result = await db.query(
-      `
-   SELECT 
+      `SELECT 
         l.loan_id,
+        l.user_id,
         l.copy_id,
         l.loan_date,
         l.due_date,
-        l.return_date,
         l.status,
         bc.book_id,
-        b.title      AS book_title,
-        b.author     AS book_author,
-        b.cover_url  AS book_cover,
-        CASE 
-          WHEN l.due_date < NOW() AND l.return_date IS NULL THEN true 
-          ELSE false 
-        END AS is_overdue,
-        CASE 
-          WHEN l.return_date IS NULL THEN EXTRACT(DAY FROM l.due_date - NOW())::int
-          ELSE NULL
-        END AS days_remaining
+        b.title AS book_title,
+        b.author AS book_author,
+        b.cover_url AS book_cover,
+        u.full_name AS user_name,
+        u.email AS user_email,
+        CASE WHEN l.due_date < NOW() AND l.return_date IS NULL THEN true ELSE false END AS is_overdue
       FROM loans l
       JOIN book_copy bc ON l.copy_id = bc.copy_id
-      JOIN books b      ON bc.book_id = b.book_id
-      WHERE l.user_id = $1
-      ORDER BY l.loan_date DESC;
-      `,
-      [userId]
+      JOIN books b ON bc.book_id = b.book_id
+      JOIN library_users u ON l.user_id = u.user_id
+      WHERE l.return_date IS NULL
+      ORDER BY l.due_date ASC`
     );
+
     res.json(result.rows);
   } catch (err: any) {
     console.error("Get active loans error:", err);
@@ -248,9 +238,9 @@ router.get("/user/:userId", async (req: Request, res: Response) => {
         l.return_date,
         l.status,
         bc.book_id,
-        b.title as book_title,
-        b.author as book_author,
-        b.cover_url as book_cover,
+        b.title AS book_title,
+        b.author AS book_author,
+        b.cover_url AS book_cover,
         CASE 
           WHEN l.due_date < NOW() AND l.return_date IS NULL THEN true 
           ELSE false 
@@ -261,6 +251,7 @@ router.get("/user/:userId", async (req: Request, res: Response) => {
         END as days_remaining
       FROM loans l
       JOIN book_copy bc ON l.copy_id = bc.copy_id
+      JOIN books b ON bc.book_id = b.book_id
       WHERE l.user_id = $1
       ORDER BY l.loan_date DESC`,
       [userId]

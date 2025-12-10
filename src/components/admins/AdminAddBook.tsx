@@ -20,6 +20,7 @@ import {
 import { BookOpen, Upload, X } from "lucide-react";
 // New API method
 import { api } from "../../services/api";
+import "../styles/AdminAddBook.css";
 
 export function AddBook() {
   const [formData, setFormData] = useState({
