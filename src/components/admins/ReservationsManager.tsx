@@ -17,7 +17,7 @@ import { api } from "../../services/api";
 import "../styles/ReservationsManager.css";
 
 type Reservation = {
-  id: number;
+  reservation_id: number; // Primary key
   user_id: number;
   book_id: number;
   reservation_date: string;
@@ -231,11 +231,14 @@ export function ReservationsManager() {
 
                 <div className="queue-list">
                   {data.queue.map((reservation, index) => {
-                    const isProcessing = processingId === reservation.id;
+                    processingId === reservation.reservation_id;
                     const canFulfill = data.available_copies > 0 && index === 0;
 
                     return (
-                      <div key={reservation.id} className="queue-item">
+                      <div
+                        key={reservation.reservation_id}
+                        className="queue-item"
+                      >
                         <div className="position-badge">
                           #{reservation.position}
                         </div>
@@ -265,7 +268,9 @@ export function ReservationsManager() {
                         <div className="queue-actions">
                           {canFulfill && (
                             <Button
-                              onClick={() => handleFulfill(reservation.id)}
+                              onClick={() =>
+                                handleFulfill(reservation.reservation_id)
+                              }
                               disabled={isProcessing}
                               className="fulfill-btn"
                               size="sm"
@@ -274,7 +279,9 @@ export function ReservationsManager() {
                             </Button>
                           )}
                           <Button
-                            onClick={() => handleCancel(reservation.id)}
+                            onClick={() =>
+                              handleCancel(reservation.reservation_id)
+                            }
                             disabled={isProcessing}
                             variant="outline"
                             className="cancel-btn"

@@ -3,10 +3,9 @@
  * Defines the Reservation interface
  ***********************/
 export interface Loans {
-  id: number;
-  userId: number;
-  bookCopyId: number;
-  loanDate: string;
-  returnDate: string | null;
+  loan_id: number;
+  //userId: number;
+  copy_id: number;
+  loan_date: string;
+  return_date: string | null;
 }
-

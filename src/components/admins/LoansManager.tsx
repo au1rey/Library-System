@@ -14,11 +14,13 @@ import { api } from "../../services/api";
 import "../styles/LoansManager.css";
 
 type ActiveLoan = {
-  id: number;
+  loan_id: number;
   user_id: number;
   book_id: number;
-  checkout_date: string;
+  copy_id: number;
+  loan_date: string;
   due_date: string;
+  return_date?: string;
   status: string;
   book_title: string;
   book_author: string;
@@ -32,9 +34,10 @@ export function LoansManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [returningId, setReturningId] = useState<number | null>(null);
-  const [feedback, setFeedback] = useState<
-    { type: "success" | "error"; message: string } | null
-  >(null);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchActiveLoans();
@@ -59,7 +62,7 @@ export function LoansManager() {
     setReturningId(loanId);
     setFeedback(null);
     try {
-      await api.returnLoan(loanId);
+      await api.returnBook(loanId);
       setFeedback({
         type: "success",
         message: "Book marked as returned successfully",
@@ -153,10 +156,10 @@ export function LoansManager() {
           </div>
 
           {loans.map((loan) => {
-            const isProcessing = returningId === loan.id;
+            const isProcessing = returningId === loan.loan_id;
             return (
               <div
-                key={loan.id}
+                key={loan.loan_id}
                 className={`table-row ${loan.is_overdue ? "overdue" : ""}`}
               >
                 <div className="book-info">
@@ -182,7 +185,7 @@ export function LoansManager() {
                     <span className="date-label">
                       <Calendar size={14} /> Checked out
                     </span>
-                    <span>{formatDate(loan.checkout_date)}</span>
+                    <span>{formatDate(loan.loan_date)}</span>
                   </div>
                   <div className="date-row">
                     <span className="date-label">
@@ -205,7 +208,7 @@ export function LoansManager() {
                 <div className="actions">
                   <button
                     className="return-btn"
-                    onClick={() => handleReturn(loan.id)}
+                    onClick={() => handleReturn(loan.loan_id)}
                     disabled={isProcessing}
                   >
                     {isProcessing ? "Processing..." : "Mark Returned"}

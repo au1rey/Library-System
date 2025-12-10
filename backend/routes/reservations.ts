@@ -16,7 +16,7 @@ router.post("/", async (req: Request, res: Response) => {
 
   try {
     const result = await db.query(
-      "INSERT INTO reservations (user_id, book_id, reserved_at) VALUES ($1, $2, NOW()) RETURNING *",
+      "INSERT INTO reservations (user_id, book_id, reservation_date) VALUES ($1, $2, NOW()) RETURNING *",
       [userId, bookId]
     );
 
@@ -38,7 +38,7 @@ router.get("/:userId", async (req: Request, res: Response) => {
 
   try {
     const result = await db.query(
-      "SELECT * FROM reservations WHERE user_id = $1 ORDER BY reserved_at DESC",
+      "SELECT * FROM reservations WHERE user_id = $1 ORDER BY reserved_date DESC",
       [userId]
     );
 
@@ -56,7 +56,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    await db.query("DELETE FROM reservations WHERE id = $1", [id]);
+    await db.query("DELETE FROM reservations WHERE reservation_id = $1", [id]);
     res.status(200).json({ message: "Reservation canceled successfully" });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

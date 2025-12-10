@@ -68,7 +68,7 @@ router.post("/checkout", async (req: Request, res: Response) => {
     dueDate.setDate(dueDate.getDate() + 14);
 
     const loanResult = await client.query(
-      `INSERT INTO loans (user_id, book_id, checkout_date, due_date, status)
+      `INSERT INTO loans (user_id, copy_id, loan_date, due_date, status)
        VALUES ($1, $2, NOW(), $3, 'active')
        RETURNING *`,
       [userId, bookId, dueDate]
@@ -99,7 +99,7 @@ router.post("/checkout", async (req: Request, res: Response) => {
  * PUT /api/loans/return/:id
  * Return a loaned book (update returnDate)
  ***********************/
-router.put("/return/:id", async (req: Request, res: Response) => {
+router.put("/return/:loanId", async (req: Request, res: Response) => {
   const loanId = parseInt(req.params.id);
 
   const client = await db.connect();
@@ -126,7 +126,7 @@ router.put("/return/:id", async (req: Request, res: Response) => {
 
     // Mark loan as returned
     await client.query(
-      `UPDATE loans SET return_date = NOW(), status = 'returned' WHERE id = $1`,
+      `UPDATE loans SET return_date = NOW(), status = 'returned' WHERE loan_id= $1`,
       [loanId]
     );
 
@@ -151,7 +151,7 @@ router.put("/return/:id", async (req: Request, res: Response) => {
       const reservation = reservationResult.rows[0];
       await client.query(
         "UPDATE reservations SET status = 'ready' WHERE id = $1",
-        [reservation.reservation.id]
+        [reservation.reservation_id]
       );
       notification = `Reservation for user ${reservation.user_id} is now ready`;
     }
@@ -197,7 +197,7 @@ router.get("/active", async (_req: Request, res: Response) => {
       FROM loans l
       JOIN book_copy bc ON l.copy_id = bc.copy_id
       JOIN users u ON l.user_id = u.user_id
-      WHERE l.return_date = 'active'
+      WHERE l.return_date IS NULL
       ORDER BY l.due_date ASC`
     );
     res.json(result.rows);
@@ -237,7 +237,7 @@ router.get("/user/:userId", async (req: Request, res: Response) => {
       FROM loans l
       JOIN book_copy bc ON l.copy_id = bc.copy_id
       WHERE l.user_id = $1
-      ORDER BY l.checkout_date DESC`,
+      ORDER BY l.loan_date DESC`,
       [userId]
     );
     res.json(result.rows);

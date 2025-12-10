@@ -12,9 +12,10 @@ import "../styles/userBooks.css";
 import { api } from "../../services/api";
 
 type Loan = {
-  id: number;
+  loan_id: number; // Primary key
+  copy_id: number;
   book_id: number;
-  checkout_date: string;
+  loan_date: string; // When checked out
   due_date: string;
   return_date?: string;
   status: string;
@@ -26,7 +27,7 @@ type Loan = {
 };
 
 type Reservation = {
-  id: number;
+  reservation_id: number; // Primary key
   book_id: number;
   reservation_date: string;
   position: number;
@@ -204,7 +205,7 @@ export function UserBooks() {
               </div>
             ) : (
               currentBooks.map((book) => (
-                <div className="book-card" key={book.id}>
+                <div className="book-card" key={book.loan_id}>
                   <div className="book-header">
                     <div>
                       <h3>{book.book_title}</h3>
@@ -225,7 +226,7 @@ export function UserBooks() {
                     <div>
                       <p>
                         <Calendar size={16} /> Checked out:{" "}
-                        {formatDate(book.checkout_date)}
+                        {formatDate(book.loan_date)}
                       </p>
                       <p>
                         <Clock size={16} /> Due: {formatDate(book.due_date)}
@@ -249,7 +250,7 @@ export function UserBooks() {
               </div>
             ) : (
               reservations.map((reservation) => (
-                <div className="book-card" key={reservation.id}>
+                <div className="book-card" key={reservation.reservation_id}>
                   <div className="book-header">
                     <div>
                       <h3>{reservation.book_title}</h3>
@@ -298,13 +299,13 @@ export function UserBooks() {
               </div>
             ) : (
               bookHistory.map((book) => (
-                <div className="book-card" key={book.id}>
+                <div className="book-card" key={book.loan_id}>
                   <div className="book-header">
                     <div>
                       <h3>{book.book_title}</h3>
                       <p>by {book.book_author}</p>
                       <p className="dates">
-                        Borrowed: {formatDate(book.checkout_date)} • Returned:{" "}
+                        Borrowed: {formatDate(book.loan_date)} • Returned:{" "}
                         {book.return_date && formatDate(book.return_date)}
                       </p>
                     </div>
