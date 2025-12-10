@@ -10,6 +10,7 @@ const router = Router();
 /***********************
  * POST /api/loans
  * Create a new loan (borrow a book copy)
+ *  * Request body: { userId, bookId }
  ***********************/
 router.post("/checkout", async (req: Request, res: Response) => {
   const { userId, bookId } = req.body;
@@ -40,6 +41,26 @@ router.post("/checkout", async (req: Request, res: Response) => {
       return res.status(400).json({
         error: "No copies available for checkout. Please place a reservation.",
       });
+    }
+    // Find an available copy (or use book_id if you don't track individual copies)
+    // If you have a book_copy table, find the first available one:
+    const copyResult = await client.query(
+      `SELECT copy_id FROM book_copy 
+       WHERE book_id = $1 
+       AND copy_id NOT IN (
+         SELECT copy_id FROM loans WHERE return_date IS NULL
+       )
+       LIMIT 1`,
+      [bookId]
+    );
+
+    let copyId;
+    if (copyResult.rows.length > 0) {
+      copyId = copyResult.rows[0].copy_id;
+    } else {
+      // Fallback: if no book_copy table, just use book_id as copy_id
+      // Or create a synthetic copy_id
+      copyId = bookId; // Adjust this based on your schema
     }
 
     // Create loan with due date (14 days from now)
@@ -87,7 +108,11 @@ router.put("/return/:id", async (req: Request, res: Response) => {
     await client.query("BEGIN");
     // Get loan details
     const loanResult = await client.query(
-      "SELECT * FROM loans WHERE id = $1 AND status = 'active' FOR UPDATE",
+      `SELECT l.*, bc.book_id 
+       FROM loans l
+       JOIN book_copy bc ON l.copy_id = bc.copy_id
+       WHERE l.loan_id = $1 AND l.return_date IS NULL 
+       FOR UPDATE`,
       [loanId]
     );
 
@@ -97,6 +122,7 @@ router.put("/return/:id", async (req: Request, res: Response) => {
     }
 
     const loan = loanResult.rows[0];
+    const bookId = loan.book_id;
 
     // Mark loan as returned
     await client.query(
@@ -116,7 +142,7 @@ router.put("/return/:id", async (req: Request, res: Response) => {
        WHERE book_id = $1 AND status = 'pending' 
        ORDER BY position, reservation_date 
        LIMIT 1`,
-      [loan.book_id]
+      [bookId]
     );
 
     let notification = null;
@@ -125,7 +151,7 @@ router.put("/return/:id", async (req: Request, res: Response) => {
       const reservation = reservationResult.rows[0];
       await client.query(
         "UPDATE reservations SET status = 'ready' WHERE id = $1",
-        [reservation.id]
+        [reservation.reservation.id]
       );
       notification = `Reservation for user ${reservation.user_id} is now ready`;
     }
@@ -153,12 +179,13 @@ router.get("/active", async (_req: Request, res: Response) => {
   try {
     const result = await db.query(
       `SELECT 
-        l.id,
+        l.loan_id,
         l.user_id,
-        l.book_id,
-        l.checkout_date,
+        l.copy_id,
+        l.loan_date,
         l.due_date,
         l.status,
+        bc.book_id,
         b.title as book_title,
         b.author as book_author,
         u.name as user_name,
@@ -168,9 +195,9 @@ router.get("/active", async (_req: Request, res: Response) => {
           ELSE false 
         END as is_overdue
       FROM loans l
-      JOIN books b ON l.book_id = b.book_id
+      JOIN book_copy bc ON l.copy_id = bc.copy_id
       JOIN users u ON l.user_id = u.user_id
-      WHERE l.status = 'active'
+      WHERE l.return_date = 'active'
       ORDER BY l.due_date ASC`
     );
     res.json(result.rows);
@@ -189,20 +216,26 @@ router.get("/user/:userId", async (req: Request, res: Response) => {
   try {
     const result = await db.query(
       `SELECT 
-        l.*,
+        l.loan_id,
+        l.copy_id,
+        l.loan_date,
+        l.due_date,
+        l.return_date,
+        l.status,
+        bc.book_id,
         b.title as book_title,
         b.author as book_author,
         b.cover_url as book_cover,
         CASE 
-          WHEN l.due_date < NOW() AND l.status = 'active' THEN true 
+          WHEN l.due_date < NOW() AND l.return_date IS NULL THEN true 
           ELSE false 
         END as is_overdue,
         CASE 
-          WHEN l.status = 'active' THEN EXTRACT(DAY FROM l.due_date - NOW())::int
+          WHEN l.return_date IS NULL THEN EXTRACT(DAY FROM l.due_date - NOW())::int
           ELSE NULL
         END as days_remaining
       FROM loans l
-      JOIN books b ON l.book_id = b.book_id
+      JOIN book_copy bc ON l.copy_id = bc.copy_id
       WHERE l.user_id = $1
       ORDER BY l.checkout_date DESC`,
       [userId]
