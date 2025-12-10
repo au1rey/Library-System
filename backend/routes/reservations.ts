@@ -103,13 +103,13 @@ router.get("/all", async (_req: Request, res: Response) => {
         r.reservation_date,
         r.position,
         r.status,
-        u.name  AS user_name,
+        u.full_name  AS user_name,
         u.email AS user_email,
         b.title AS book_title,
         b.author AS book_author,
         b.available_copies
       FROM reservations r
-      JOIN users u ON r.user_id = u.user_id
+      JOIN library_users u ON r.user_id = u.user_id
       JOIN books b ON r.book_id = b.book_id
       WHERE r.status IN ('pending', 'ready')
       ORDER BY b.title ASC, r.position ASC;
