@@ -45,17 +45,23 @@ export class LibraryUser {
    * @param userId
    * @returns LibraryUser
    **********************/
-  static async load(userId: number) {
-    const result = await db.query("SELECT * FROM library_users WHERE id=$1", [
-      userId,
-    ]); // query database by userId
-    const row = result.rows[0];
-    return new LibraryUser(
-      row.id,
-      row.name,
-      row.email,
-      row.password,
-      row.user_role
-    ); // return new LibraryUser object
+static async load(userId: number) {
+  const result = await db.query("SELECT * FROM library_users WHERE user_id=$1", [
+    userId,
+  ]);
+
+  const row = result.rows[0];
+  if (!row) {
+    // No user found
+    return null;
   }
+
+  return new LibraryUser(
+    row.user_id,
+    row.full_name,
+    row.email,
+    row.password_hash,
+    row.user_role
+  );
 }
+};

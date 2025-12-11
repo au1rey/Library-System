@@ -97,9 +97,13 @@ router.post("/login", async (req: Request, res: Response) => {
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const user = await LibraryUser.load(parseInt(req.params.id));
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
     res.json(user);
   } catch (err: any) {
-    res.status(404).json({ error: "User not found" });
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 

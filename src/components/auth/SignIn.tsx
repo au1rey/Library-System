@@ -71,7 +71,7 @@ export function SignIn({ onSignIn, onNavigate }: SignInProps) {
             <BookOpen className="signin-logo" />
           </div>
           <h2>Welcome Back</h2>
-          <p>Sign in to your library account</p>
+          <p>Sign In to Your Library Account</p>
         </div>
 
         {/* Sign In Form */}

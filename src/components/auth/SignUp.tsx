@@ -64,7 +64,7 @@ export function SignUp({ onSignUp, onNavigate }: SignUpProps) {
         {/* Header */}
         <div className="signin-header">
           <h2>Create an Account</h2>
-          <p>Sign up to access the library system</p>
+          <p>Sign Up to Access the Library System</p>
         </div>
 
         {/* Sign Up Form */}
@@ -95,6 +95,7 @@ export function SignUp({ onSignUp, onNavigate }: SignUpProps) {
                 <Label htmlFor="fullName">Full Name</Label>
                 <Input
                   id="fullName"
+                  placeholder="Enter your name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
@@ -107,6 +108,7 @@ export function SignUp({ onSignUp, onNavigate }: SignUpProps) {
                 <Input
                   id="email"
                   type="email"
+                  placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -119,6 +121,7 @@ export function SignUp({ onSignUp, onNavigate }: SignUpProps) {
                 <Input
                   id="password"
                   type="password"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

@@ -38,7 +38,7 @@
 }
 
 .stat-card p {
-  color: #6b7280;
+  color: #11291c;
   font-size: 0.9rem;
 }
 
@@ -76,11 +76,12 @@
   background: none;
   font-weight: 500;
   cursor: pointer;
+  color: black;
 }
 
 .tab-buttons button.active {
-  border-bottom: 2px solid #2563eb;
-  color: #2563eb;
+  border-bottom: 2px solid #11291c;
+  color: #11291c;
 }
 
 /* Cards */
