@@ -34,7 +34,7 @@
 .signin-logo {
   height: 3rem; /* h-12 */
   width: 3rem; /* w-12 */
-  color: #2563eb; /* text-primary (blue-600) */
+  color: #2a5934; /* text-primary (blue-600) */
 }
 
 .signin-header h2 {
@@ -80,7 +80,7 @@
 .signin-link-section button {
   background: none;
   border: none;
-  color: #2563eb; /* text-primary */
+  color: #2a5934; /* text-primary */
   text-decoration: underline;
   cursor: pointer;
   font-size: 0.9rem;
@@ -90,7 +90,7 @@
 }
 
 .signin-link-section button:hover {
-  color: #1d4ed8; /* primary hover */
+  color: #2a5934; /* primary hover */
 }
 
 /* Demo instructions box */
@@ -103,7 +103,7 @@
 
 .signin-demo-box p {
   margin: 0;
-  color: #111827;
+  color: #346250;
   font-size: 0.9rem;
   padding-bottom: 0.25rem;
 }

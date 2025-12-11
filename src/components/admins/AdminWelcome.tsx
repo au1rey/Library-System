@@ -228,12 +228,9 @@ export function AdminWelcome({ onNavigate }: AdminWelcomeProps) {
               <FileText /> Generate Reports
             </CardTitle>
             <CardDescription>
-              Export library analytics and reports
+              NOT AVAILABLE. COMING SOON.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button variant="outline">View Reports</Button>
-          </CardContent>
         </Card>
       </section>
 

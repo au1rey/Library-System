@@ -19,13 +19,13 @@
 
 /* Default variant - primary */
 .badge.default {
-  background-color: #2563eb;
+  background-color: #346250;
   color: white;
   border-color: transparent;
 }
 
 .badge.default:hover {
-  background-color: #1d4ed8;
+  background-color: #346250;
 }
 
 /* Secondary variant */
