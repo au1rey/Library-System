@@ -32,7 +32,7 @@
 /* Card wrapper */
 .add-book-card-wrapper {
   padding: 0 0.5rem; /* Prevents card from touching edges */
-  max-width: 900px;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
 }
