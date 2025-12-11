@@ -349,18 +349,16 @@ router.get("/books-with-copies", async (req, res) => {
         b.publisher,
         b.pages,
         b.publication_year,
-         b.cover_url, 
-        COUNT(bc.copy_id) AS total_copies,
-        SUM(CASE WHEN bc.status='available' THEN 1 ELSE 0 END) AS available_copies,
-        SUM(CASE WHEN bc.status='loaned' THEN 1 ELSE 0 END) AS borrowed,
+        b.cover_url, 
+        b.total_copies,
+        b.available_copies,
+        (b.total_copies - b.available_copies) AS borrowed,
         CASE
-          WHEN SUM(CASE WHEN bc.status='available' THEN 1 ELSE 0 END) = 0 THEN 'Out of Stock'
-          WHEN SUM(CASE WHEN bc.status='available' THEN 1 ELSE 0 END) < 3 THEN 'Low Stock'
+          WHEN b.available_copies = 0 THEN 'Out of Stock'
+          WHEN b.available_copies < 3 THEN 'Low Stock'
           ELSE 'Available'
         END AS status
       FROM books b
-      LEFT JOIN book_copy bc ON b.book_id = bc.book_id
-      GROUP BY b.book_id
       ORDER BY b.title;
     `);
     console.log("Books with copies:", result.rows);
