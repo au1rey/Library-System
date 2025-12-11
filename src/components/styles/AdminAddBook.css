@@ -60,7 +60,7 @@
 .book-icon {
   width: 1.5rem;
   height: 1.5rem;
-  color: #2563eb;
+  color: #3e5962;
 }
 
 /* Form */
@@ -119,7 +119,7 @@
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #2563eb;
+  border-color: #3e5962;;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
@@ -163,7 +163,7 @@
 }
 
 .upload-box:hover {
-  border-color: #2563eb;
+  border-color: #3e5962;;
   background-color: #eff6ff;
 }
 
@@ -364,17 +364,17 @@
 }
 /* Drag and drop styles */
 .upload-box.dragging {
-  border-color: #2563eb;
+  border-color: #3e5962;;
   background-color: #dbeafe;
   border-width: 3px;
   transform: scale(1.02);
 }
 
 .upload-box.dragging .upload-icon {
-  color: #2563eb;
+  color: #3e5962;;
 }
 
 .upload-box.dragging p {
-  color: #1e40af;
+  color: #3e5962;;
   font-weight: 500;
 }

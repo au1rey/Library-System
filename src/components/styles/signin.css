@@ -93,30 +93,6 @@
   color: #2a5934; /* primary hover */
 }
 
-/* Demo instructions box */
-.signin-demo-box {
-  margin-top: 1.5rem; /* mt-6 */
-  padding: 2rem; /* p-4 */
-  background-color: #f3f4f6; /* bg-muted */
-  border-radius: 0.5rem; /* rounded-lg */
-}
-
-.signin-demo-box p {
-  margin: 0;
-  color: #346250;
-  font-size: 0.9rem;
-  padding-bottom: 0.25rem;
-}
-
-.signin-demo-box strong {
-  font-weight: 600;
-}
-
-.signin-demo-box p:not(:first-child) {
-  color: #6b7280; /* text-muted-foreground */
-  margin-top: 0.5rem;
-}
-
 /* Full width button modifier */
 .signin-form-group .button {
   width: 100%;
