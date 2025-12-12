@@ -73,22 +73,7 @@
 .userwelcome-stat-icon {
   height: 2rem;
   width: 2rem;
-}
-
-.userwelcome-stat-icon.blue {
-  color: #2563eb;
-}
-
-.userwelcome-stat-icon.orange {
-  color: #ea580c;
-}
-
-.userwelcome-stat-icon.yellow {
-  color: #ca8a04;
-}
-
-.userwelcome-stat-icon.green {
-  color: #16a34a;
+  color: #346250;
 }
 
 /* Quick actions grid - 2 columns */
@@ -166,6 +151,12 @@
 /* Add top margin to full-width buttons in action cards */
 .userwelcome-action-card .userwelcome-full-btn {
   margin-top: 0.5rem;
+}
+
+.userwelcome-action-card .userwelcome-full-btn:hover:not(:disabled) {
+  background-color: #324a52;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(50, 74, 82, 0.25);
 }
 
 /* Add margin to full-width buttons in card footers */

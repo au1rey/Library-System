@@ -46,18 +46,7 @@
 .icon {
   width: 20px;
   height: 20px;
-}
-.icon.blue {
-  color: #2563eb;
-}
-.icon.yellow {
-  color: #ca8a04;
-}
-.icon.green {
-  color: #16a34a;
-}
-.icon.purple {
-  color: #9333ea;
+  color: #346250;
 }
 
 /* Tabs */
@@ -86,7 +75,7 @@
 }
 
 /* Cards */
-.book-card {
+.user-books-card {
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -94,27 +83,27 @@
   margin-bottom: 16px;
 }
 
-.book-header {
+.user-books-card .book-header {
   display: flex;
   justify-content: space-between;
   align-items: start;
   margin-bottom: 12px;
 }
 
-.book-header h3 {
+.user-books-card .book-header h3 {
   margin: 0;
 }
 
-.book-header p {
+.user-books-card .book-header p {
   color: #6b7280;
   margin: 4px 0;
 }
 
-.dates {
+.user-books-card .dates {
   font-size: 0.85rem;
 }
 
-.book-grid {
+.user-books-card .book-grid {
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

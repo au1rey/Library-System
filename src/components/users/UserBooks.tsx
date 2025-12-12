@@ -205,7 +205,7 @@ export function UserBooks() {
               </div>
             ) : (
               currentBooks.map((book) => (
-                <div className="book-card" key={book.loan_id}>
+                <div className="user-books-card" key={book.loan_id}>
                   <div className="book-header">
                     <div>
                       <h3>{book.book_title}</h3>
@@ -250,7 +250,10 @@ export function UserBooks() {
               </div>
             ) : (
               reservations.map((reservation) => (
-                <div className="book-card" key={reservation.reservation_id}>
+                <div
+                  className="user-books-card"
+                  key={reservation.reservation_id}
+                >
                   <div className="book-header">
                     <div>
                       <h3>{reservation.book_title}</h3>
@@ -299,7 +302,7 @@ export function UserBooks() {
               </div>
             ) : (
               bookHistory.map((book) => (
-                <div className="book-card" key={book.loan_id}>
+                <div className="user-books-card" key={book.loan_id}>
                   <div className="book-header">
                     <div>
                       <h3>{book.book_title}</h3>
