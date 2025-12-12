@@ -5,7 +5,7 @@
 
 /* Main container - centers content and adds padding */
 .add-book-container {
-  max-width: 1050px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
   background-color: #f9f7f4; /* bg-muted/50 equivalent */

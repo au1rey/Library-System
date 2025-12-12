@@ -53,15 +53,16 @@
  * STAT CARDS 
  * ======================================== */
 
-.stat-card {
+.stat-card.card {
   transition: all 0.2s ease;
   border: 1px solid #e5e7eb;
-  background: #ffffff;
+  background: #fefefe;
 }
 
-.stat-card:hover {
+.stat-card.card:hover {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
+  background: #fefdfd;
 }
 
 /* Reduced padding significantly */
@@ -97,22 +98,8 @@
   height: 2.25rem;
   width: 2.25rem;
   flex-shrink: 0;
-}
-
-.stat-icon.blue {
-  color: #2563eb;
-}
-
-.stat-icon.green {
-  color: #16a34a;
-}
-
-.stat-icon.orange {
-  color: #ea580c;
-}
-
-.stat-icon.red {
-  color: #dc2626;
+  color: #346250;
+  /*color: #ffffff;*/
 }
 
 /* Actions Grid */
