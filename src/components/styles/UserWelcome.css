@@ -7,6 +7,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
+  background-color: #f9f7f4; /* bg-muted/50 equivalent */
 }
 
 /* Welcome header section */

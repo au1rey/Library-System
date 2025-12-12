@@ -179,14 +179,15 @@
 }
 
 .reserve-btn {
-  background-color: #2563eb;
+  /*background-color: #2563eb;*/
+  background-color: #3e5962;
   color: white;
 }
 
 .reserve-btn:hover:not(:disabled) {
-  background-color: #1d4ed8;
+  background-color: #324a52;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 8px rgba(50, 74, 82, 0.25);
 }
 
 .reserve-btn:disabled {

@@ -8,7 +8,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f3f4f6; /* bg-muted/50 equivalent */
+  /*background-color: #f3f4f6; /* bg-muted/50 equivalent */
+  background-color: #f9f7f4; /* bg-muted/50 equivalent */
 }
 
 /* Wrapper for content */

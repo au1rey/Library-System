@@ -8,6 +8,7 @@
   padding: 2rem 1rem;
   font-family: "Inter", system-ui, sans-serif;
   color: #111827;
+  background-color: #f9f7f4; /* bg-muted/50 equivalent */
 }
 
 /* Header */

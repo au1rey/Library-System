@@ -7,6 +7,7 @@
   padding: 32px 16px;
   font-family: system-ui, sans-serif;
   color: #1f2937;
+  background-color: #f9f7f4; /* bg-muted/50 equivalent */
 }
 
 .header h1 {
