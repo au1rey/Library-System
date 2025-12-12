@@ -153,7 +153,7 @@
   margin-top: 0.5rem;
 }
 
-.userwelcome-action-card .userwelcome-full-btn:hover:not(:disabled) {
+.userwelcome-action-card .userwelcome-primary-btn:hover:not(:disabled) {
   background-color: #324a52;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(50, 74, 82, 0.25);

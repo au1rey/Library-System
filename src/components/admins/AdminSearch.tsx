@@ -208,6 +208,7 @@ export function AdminSearch() {
       </div>
 
       {/* Bulk actions */}
+      {/*
       <div className="admin-actions">
         <Button>
           <BookOpen size={16} />
@@ -215,7 +216,7 @@ export function AdminSearch() {
         </Button>
         <Button>Bulk Edit</Button>
       </div>
-
+      */}
       {/* VIEW BOOK MODAL */}
       {selectedBook && (
         <ViewBookModal

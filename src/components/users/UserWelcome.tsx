@@ -211,7 +211,9 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="userwelcome-full-btn">Browse Catalog</Button>
+            <Button className="userwelcome-full-btn userwelcome-primary-btn">
+              Browse Catalog
+            </Button>
           </CardContent>
         </Card>
 
@@ -305,9 +307,11 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
           <CardHeader>
             <CardTitle className="userwelcome-action-title">
               <Star className="userwelcome-action-icon" />
-              Recommended for You
+              Staff Picks!
             </CardTitle>
-            <CardDescription>Books you might enjoy</CardDescription>
+            <CardDescription>
+              Selections curated by our librarians
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="userwelcome-book-list">

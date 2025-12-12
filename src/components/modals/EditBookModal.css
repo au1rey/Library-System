@@ -328,6 +328,17 @@
   font-weight: 500;
 }
 
+.edit-book-form .button-row button:first-of-type {
+  background-color: #3e5962;
+  color: #fff;
+}
+
+.edit-book-form .button-row button:first-of-type:hover:not(:disabled) {
+  background-color: #324a52;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(50, 74, 82, 0.25);
+}
+
 /* Success message */
 .edit-book-form .success-message {
   padding: 0.875rem 1rem;

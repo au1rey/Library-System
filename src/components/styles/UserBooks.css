@@ -159,6 +159,10 @@
   border-radius: 12px;
   font-weight: 500;
 }
+.badge-info {
+  background: #e1f3f0;
+  color: #0c4a3a;
+}
 
 .badge-overdue {
   background: #fee2e2;

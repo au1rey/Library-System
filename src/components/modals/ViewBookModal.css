@@ -55,13 +55,13 @@
 .modal-loan-btn {
   margin-top: 1rem;
   width: 100%;
-  background: #111827 !important;
+  background: #3e5962 !important;
   color: white !important;
 }
 
 .modal-close-btn:hover,
 .modal-loan-btn:hover {
-  background: #374151 !important;
+  background: #324a52 !important;
 }
 
 /* Feedback box (success or error) */
