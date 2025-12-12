@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,45 +9,95 @@ import {
 import { Button } from "../ui/button";
 import { BookOpen, Search, Clock, Star, TrendingUp } from "lucide-react";
 import "../styles/userwelcome.css";
+import { api } from "../../services/api";
 
 interface UserWelcomeProps {
   onNavigate: (screen: string) => void;
 }
 
-export function UserWelcome({ onNavigate }: UserWelcomeProps) {
-  // Mock data for user dashboard
-  const userStats = [
-    { title: "Books Borrowed", value: "12", icon: BookOpen, color: "blue" },
-    { title: "Currently Reading", value: "3", icon: Clock, color: "orange" },
-    { title: "Favorites", value: "8", icon: Star, color: "yellow" },
-    {
-      title: "Books Available",
-      value: "2,547",
-      icon: TrendingUp,
-      color: "green",
-    },
-  ];
+type Loan = {
+  loan_id: number;
+  book_title: string;
+  book_author: string;
+  loan_date: string;
+  due_date: string;
+  return_date?: string;
+  status: string;
+  is_overdue: boolean;
+  days_remaining?: number;
+};
 
-  const currentBooks = [
-    {
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      dueDate: "Dec 15, 2024",
-      progress: 65,
-    },
-    {
-      title: "To Kill a Mockingbird",
-      author: "Harper Lee",
-      dueDate: "Dec 20, 2024",
-      progress: 30,
-    },
-    {
-      title: "1984",
-      author: "George Orwell",
-      dueDate: "Dec 25, 2024",
-      progress: 80,
-    },
-  ];
+type StatSnapshot = {
+  borrowed: number;
+  current: number;
+  favorites: number;
+  available: number;
+};
+
+export function UserWelcome({ onNavigate }: UserWelcomeProps) {
+  const [stats, setStats] = useState<StatSnapshot>({
+    borrowed: 0,
+    current: 0,
+    favorites: 0,
+    available: 0,
+  });
+  const [currentBooks, setCurrentBooks] = useState<Loan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const currentUser = useMemo(() => {
+    try {
+      const stored = localStorage.getItem("currentUser");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const [loansData, booksWithCopies] = await Promise.all([
+          api.getUserLoans(currentUser.id),
+          api.getBooksWithCopies(),
+        ]);
+
+        const activeLoans: Loan[] = loansData.filter(
+          (loan: Loan) => loan.status === "active"
+        );
+
+        const favoriteIds = getFavoriteIds();
+        const availableBooks = booksWithCopies.reduce(
+          (sum: number, book: any) => sum + (book.available_copies || 0),
+          0
+        );
+
+        setStats({
+          borrowed: loansData.length,
+          current: activeLoans.length,
+          favorites: favoriteIds.length,
+          available: availableBooks,
+        });
+        setCurrentBooks(activeLoans);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to load dashboard data";
+        setError(message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [currentUser]);
 
   const recommendations = [
     {
@@ -66,9 +117,60 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
     },
   ];
 
+  if (!currentUser) {
+    return (
+      <div className="userwelcome-container">
+        <div className="userwelcome-header">
+          <h1>Welcome to the Library</h1>
+          <p>Please sign in to view your personalized dashboard.</p>
+        </div>
+        <Button onClick={() => onNavigate("sign-in")}>Sign In</Button>
+      </div>
+    );
+  }
+
+  const userStats = [
+    {
+      title: "Books Borrowed",
+      value: stats.borrowed.toString(),
+      icon: BookOpen,
+      color: "blue",
+    },
+    {
+      title: "Currently Reading",
+      value: stats.current.toString(),
+      icon: Clock,
+      color: "orange",
+    },
+    {
+      title: "Favorites",
+      value: stats.favorites.toString(),
+      icon: Star,
+      color: "yellow",
+    },
+    {
+      title: "Books Available",
+      value: stats.available.toLocaleString(),
+      icon: TrendingUp,
+      color: "green",
+    },
+  ];
+
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+
+  const getStatusLabel = (loan: Loan) => {
+    if (loan.is_overdue) return "overdue";
+    if ((loan.days_remaining ?? 0) < 3) return "due";
+    return "onTime";
+  };
+
   return (
     <div className="userwelcome-container">
-      {/* Welcome Header */}
       <div className="userwelcome-header">
         <h1>Welcome to the Library</h1>
         <p>
@@ -78,7 +180,8 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
         </p>
       </div>
 
-      {/* Stats Grid */}
+      {error && <div className="userwelcome-error">{error}</div>}
+
       <div className="userwelcome-stats-grid">
         {userStats.map((stat, index) => (
           <Card key={index}>
@@ -93,7 +196,6 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
         ))}
       </div>
 
-      {/* Quick Actions */}
       <div className="userwelcome-actions-grid">
         <Card
           className="userwelcome-action-card"
@@ -135,8 +237,6 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
       </div>
 
       <div className="userwelcome-content-grid">
-        {/* Currently Reading */}
-
         <Card>
           <CardHeader>
             <CardTitle className="userwelcome-action-title">
@@ -147,36 +247,32 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
           </CardHeader>
 
           <CardContent>
-            {/* Book List */}
-            {currentBooks.length === 0 ? (
+            {loading ? (
+              <p>Loading your current books...</p>
+            ) : currentBooks.length === 0 ? (
               <p className="userwelcome-empty">You have no active loans.</p>
             ) : (
               <div className="userwelcome-current-list">
-                {currentBooks.map((book, index) => {
-                  const now = new Date();
-                  const due = new Date(book.dueDate);
-
-                  const isOverdue = due < now;
-                  const daysRemaining =
-                    (due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-
-                  let status = "onTime";
-                  if (isOverdue) status = "overdue";
-                  else if (daysRemaining < 3) status = "due";
-
+                {currentBooks.map((book) => {
+                  const status = getStatusLabel(book);
                   return (
-                    <div key={index} className="userwelcome-current-item">
+                    <div
+                      key={book.loan_id}
+                      className="userwelcome-current-item"
+                    >
                       <div className="userwelcome-current-header">
                         <div>
-                          <p className="userwelcome-book-title">{book.title}</p>
+                          <p className="userwelcome-book-title">
+                            {book.book_title}
+                          </p>
                           <p className="userwelcome-book-author">
-                            by {book.author}
+                            by {book.book_author}
                           </p>
                         </div>
 
                         <div className="userwelcome-current-status">
                           <p className="userwelcome-book-due">
-                            Due: {book.dueDate}
+                            Due: {formatDate(book.due_date)}
                           </p>
                           <span className={`status-badge ${status}`}>
                             {status === "onTime"
@@ -193,7 +289,6 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
               </div>
             )}
 
-            {/* Button Footer */}
             <div className="userwelcome-card-footer">
               <Button
                 variant="outline"
@@ -206,7 +301,6 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
           </CardContent>
         </Card>
 
-        {/* Recommendations */}
         <Card>
           <CardHeader>
             <CardTitle className="userwelcome-action-title">
@@ -244,4 +338,15 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
       </div>
     </div>
   );
+}
+
+function getFavoriteIds(): number[] {
+  try {
+    const stored = localStorage.getItem("favoriteBookIds");
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
