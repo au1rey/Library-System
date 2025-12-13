@@ -103,17 +103,17 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
     {
       title: "Pride and Prejudice",
       author: "Jane Austen",
-      reason: "Based on your reading history",
+      reason: "A timeless classic our staff loves",
     },
     {
       title: "The Catcher in the Rye",
       author: "J.D. Salinger",
-      reason: "Popular in Literature",
+      reason: "A perennial favorite in Literature",
     },
     {
       title: "Brave New World",
       author: "Aldous Huxley",
-      reason: "Similar to 1984",
+      reason: "A thought-provoking companion to dystopian reads",
     },
   ];
 
@@ -258,10 +258,7 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
                 {currentBooks.map((book) => {
                   const status = getStatusLabel(book);
                   return (
-                    <div
-                      key={book.loan_id}
-                      className="userwelcome-current-item"
-                    >
+                    <div key={book.loan_id} className="userwelcome-current-item">
                       <div className="userwelcome-current-header">
                         <div>
                           <p className="userwelcome-book-title">
@@ -302,6 +299,24 @@ export function UserWelcome({ onNavigate }: UserWelcomeProps) {
             </div>
           </CardContent>
         </Card>
+
+        {/*
+        <Card className="userwelcome-favorites-card">
+          <CardHeader>
+            <CardTitle className="userwelcome-action-title">
+              <Star className="userwelcome-action-icon" />
+              Build Your Favorites
+            </CardTitle>
+            <CardDescription>Coming soon</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="userwelcome-coming-soon">
+              We’re working on a favorites list so you can save books for later.
+              Stay tuned!
+            </p>
+          </CardContent>
+        </Card>
+        */}
 
         <Card>
           <CardHeader>

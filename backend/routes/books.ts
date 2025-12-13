@@ -405,14 +405,37 @@ router.get("/:id", async (req: Request, res: Response) => {
  * DELETE /books/:id - deletes book and its copies
  ************************/
 router.delete("/:id", async (req: Request, res: Response) => {
+  const client = await db.connect();
   try {
     const { id } = req.params;
-    console.log("DELETE route hit", req.params);
-    await db.query("DELETE FROM books WHERE book_id = $1", [id]);
+    await client.query("BEGIN");
+
+    // Remove any reservations tied directly to the book
+    await client.query("DELETE FROM reservations WHERE book_id = $1", [id]);
+
+    // Remove loans for copies of this book
+    await client.query(
+      `DELETE FROM loans 
+       WHERE copy_id IN (
+         SELECT copy_id FROM book_copy WHERE book_id = $1
+       )`,
+      [id]
+    );
+
+    // Remove the individual copies
+    await client.query("DELETE FROM book_copy WHERE book_id = $1", [id]);
+
+    // Finally delete the book record
+    await client.query("DELETE FROM books WHERE book_id = $1", [id]);
+
+    await client.query("COMMIT");
     res.json({ message: "Book deleted successfully" });
   } catch (err: any) {
+    await client.query("ROLLBACK");
     console.error(err);
     res.status(500).json({ error: err.message });
+  } finally {
+    client.release();
   }
 });
 

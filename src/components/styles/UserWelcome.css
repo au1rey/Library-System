@@ -178,6 +178,12 @@
   margin-bottom: 1rem;
 }
 
+.userwelcome-coming-soon {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
 /* Content grid */
 .userwelcome-content-grid {
   display: grid;
