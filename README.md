@@ -67,7 +67,7 @@ Key design choices include:
 
 ### ER Diagram
 
-![ER Diagram](docs/er-diagram.png)
+![ER Diagram](docs/ER_diagram.png)
 
 # Installation
 
